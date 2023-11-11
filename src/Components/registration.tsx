@@ -31,9 +31,9 @@ interface VerificationMessageProps {
 function VerificationMessage({email} : VerificationMessageProps) {
 return (
   <>
-    <div className="box">
+    <div className="box" style={{flexDirection : 'column'}}>
       <h3>Email Verification Required</h3>
-      <h4>Verification email has been sent to: <br/><b>{email}</b></h4>
+      <p>Verification email has been sent to: <br/><b>{email}</b></p>
       <p>Please verify your email address to complete registration.</p>
     </div>
     </>
@@ -41,7 +41,7 @@ return (
 
 }
 function Registration() {
-    const [email, setEmail] = useState('blahblah@email.com');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
@@ -73,7 +73,7 @@ function Registration() {
     <div id='bodyDiv'>
     <h1>MChat</h1>
     <h2>Make connections...</h2>
-    {!registered ? <VerificationMessage email={email} /> : <RegistrationForm errorMessage={errorMessage} setEmail={setEmail} setPassword={setPassword} setConfirmPassword={setConfirmPassword} handleSubmit={handleSubmit} />}
+    {registered ? <VerificationMessage email={email} /> : <RegistrationForm errorMessage={errorMessage} setEmail={setEmail} setPassword={setPassword} setConfirmPassword={setConfirmPassword} handleSubmit={handleSubmit} />}
     </div>
     );
 }
