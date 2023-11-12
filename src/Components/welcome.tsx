@@ -1,16 +1,36 @@
 import React, {useState, useEffect} from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 function Welcome() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [confirmationMessage, setConfirmationMessage] = useState('')
+    const emailVerificationToken = searchParams.get("token"); 
+
+
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         login();
     }
+    
+    useEffect(() => {
+      if (emailVerificationToken !== null) {
+        verifyToken(emailVerificationToken)
+      }
+    }, [])
+
+    const verifyToken = (token : string) => {
+        axios.post(`${process.env.REACT_APP_API_URL}/api/verify`, {
+            token: token,
+        }).then((response) => {
+            setConfirmationMessage('Email Verified. You can now log in using your credentials')
+        }).catch((error) => {
+          setErrorMessage("Email verification unsucessful. Your token may be expired!")
+        });
+    }
     const login = () => {
-        console.log(`${process.env.REACT_APP_API_URL}/api/login`)
         axios.post(`${process.env.REACT_APP_API_URL}/api/login`, {
             email: email,
             password: password
@@ -37,6 +57,7 @@ const onChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
         <input type="password" placeholder="Password" onChange={onChangePassword}></input>
         {errorMessage && <div className="error">{errorMessage}</div>}
         <button>Login</button>
+        {confirmationMessage && <div>{confirmationMessage}</div>}
         <a href="register.html">Forgot Password?</a>
     </form>
     <div className="box">

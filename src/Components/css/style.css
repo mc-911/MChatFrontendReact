@@ -58,3 +58,70 @@
         font-size: 1.25rem;
         cursor: pointer;
     }
+    
+    .homeScaffold {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+    }
+
+    .friendsSection {
+        width: 20rem;
+        height: 100vh;
+        background-color: red;
+        border-right: #2D2D2A 1px solid;   
+        display: flex;
+        flex-direction: column;
+    }
+
+    .friendsSectionItem {
+        display: flex;
+        flex-direction: row;
+        flex-basis: auto;
+        align-items: center;
+        gap: 1rem;
+    }
+    .friendsSectionItem img {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        margin: 0.5rem; 
+    }
+
+    .chatSection {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .chatHeader {
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+        border-bottom: #2D2D2A 1px solid;
+    }
+
+    .chatHeader img {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        margin: 0.5rem; 
+    }
+
+    .chatContent {
+        flex-grow: 1;
+        background-color: #2D2D2A;
+    }
+
+    .MessageInputComponent {
+        height: 10%;
+        background-color: purple;
+        display: flex;
+        flex-direction: row;
+    }
+    
+    .MessageInputComponent input {
+        margin-left: 1rem;
+        margin-right: 1rem;
+    }
+

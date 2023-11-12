@@ -63,7 +63,7 @@ function Registration() {
             email: email,
             password: password
         }).then((response) => {
-            response.status === 200 ? setRegistered(true) : setRegistered(false);
+            response.status === 201 ? setRegistered(true) : setRegistered(false);
             console.log(response);
         }).catch((error) => {
           setErrorMessage("Email already exists")
