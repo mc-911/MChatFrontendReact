@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import {
+  HubConnectionBuilder,
+  LogLevel,
+  HubConnection,
+} from "@microsoft/signalr";
 interface FriendsSectionItemProps {
   name: string;
   profilePic: string;
@@ -68,29 +73,38 @@ function Message({ senderName, senderIcon, timeSent, content }: MessageProps) {
   );
 }
 function Home() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [chatName, setChatName] = useState("Literally him");
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    login();
-  };
-
-  const login = () => {
-    console.log(`${process.env.REACT_APP_API_URL}/api/login`);
-    axios
-      .post(`${process.env.REACT_APP_API_URL}/api/login`, {
-        email: email,
-        password: password,
-      })
-      .then((response) => {
-        console.log(response);
+  const [chatName, setChatName] = useState("");
+  const [connection, setConnection] = useState<HubConnection>();
+  const [messages, setMessages] = useState<Message>();
+  const joinChat = async () => {
+    let connection = new HubConnectionBuilder()
+      .withUrl(`${process.env.REACT_APP_WEBSOCKETS_URL}/chat`)
+      .configureLogging(LogLevel.Information)
+      .build();
+    connection.on("ReceiveMessage", (user, message) => {
+      console.log("Message Received: ", message);
+    });
+    await connection
+      .start()
+      .then(() => {
+        connection.invoke("JoinChat", { user: "Test User", room: "Test Room" });
       })
       .catch((error) => {
-        setErrorMessage("Your Email or Password is incorrect");
+        console.log(error);
       });
+    setConnection(connection);
   };
+  const getMessages = (chatId: string) => {
+    axios
+      .post(`${process.env.REACT_APP_API_URL}/api/getMessages`, {
+        chatId: chatId,
+      })
+      .then((response) => {})
+      .catch((error) => {});
+  };
+  React.useEffect(() => {
+    joinChat();
+  }, []);
   return (
     <div className="homeScaffold">
       <div className="friendsSection">
