@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import axios from "axios";
 import {
   HubConnectionBuilder,
   LogLevel,
   HubConnection,
 } from "@microsoft/signalr";
+import { PrivateOutletContext } from "./protectedRoute";
 interface FriendsSectionItemProps {
   name: string;
   profilePic: string;
@@ -76,12 +78,14 @@ function Home() {
   const [chatName, setChatName] = useState("");
   const [connection, setConnection] = useState<HubConnection>();
   const [messages, setMessages] = useState<Message>();
+  const { jwt, setJwt } = useOutletContext<PrivateOutletContext>();
   const joinChat = async () => {
+    console.log(`jwt: ${jwt}`);
     let connection = new HubConnectionBuilder()
-      .withUrl(`${process.env.REACT_APP_WEBSOCKETS_URL}/chat`)
+      .withUrl(`${process.env.REACT_APP_WEBSOCKETS_URL}/chat`, { accessTokenFactory() { return jwt; } })
       .configureLogging(LogLevel.Information)
       .build();
-    connection.on("ReceiveMessage", (user, message) => {
+    connection.on("ReceiveMessage", (message) => {
       console.log("Message Received: ", message);
     });
     await connection
@@ -99,12 +103,15 @@ function Home() {
       .post(`${process.env.REACT_APP_API_URL}/api/getMessages`, {
         chatId: chatId,
       })
-      .then((response) => {})
-      .catch((error) => {});
+      .then((response) => { })
+      .catch((error) => { });
   };
   React.useEffect(() => {
-    joinChat();
-  }, []);
+    if (jwt != '') {
+
+      joinChat();
+    }
+  }, [jwt]);
   return (
     <div className="homeScaffold">
       <div className="friendsSection">
