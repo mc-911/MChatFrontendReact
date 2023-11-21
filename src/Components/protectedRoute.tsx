@@ -9,7 +9,6 @@ export interface PrivateOutletContext {
 const PrivateRoutes = () => {
   const { isAuth, setIsAuth } = useIsAuth();
   const [jwt, setJwt] = useState("");
-
   useEffect(() => {
     const checkAuthState = async () => {
       return await axios

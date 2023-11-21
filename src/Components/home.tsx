@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useOutletContext } from "react-router-dom";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 import {
   HubConnectionBuilder,
   LogLevel,
@@ -39,25 +40,34 @@ function ChatHeader({ name, profilePic }: ChatHeaderProps) {
 
 interface MessageInputComponent {
   placeholder: string;
+  sendMessageFunc: (message: string) => void;
 }
 
-function MessageInputComponent({ placeholder }: MessageInputComponent) {
+function MessageInputComponent({ placeholder, sendMessageFunc }: MessageInputComponent) {
+  const [message, setMessage] = useState('');
+  const onChangeMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMessage(e.target.value);
+  }
   return (
     <div className="MessageInputComponent">
-      <input type="text" placeholder={placeholder} />
+      <input type="text" placeholder={placeholder} value={message} onChange={onChangeMessage} onKeyDown={(event) => {
+        if (event.key == "Enter") {
+          sendMessageFunc(message)
+        }
+      }} />
     </div>
   );
 }
 interface MessageProps {
   senderName: string;
   senderIcon: string;
-  timeSent: string;
+  timeSent: Date;
   content: string;
 }
 type Message = {
   senderName: string;
   senderIcon: string;
-  timeSent: string;
+  timeSent: Date;
   content: string;
 };
 function Message({ senderName, senderIcon, timeSent, content }: MessageProps) {
@@ -67,7 +77,7 @@ function Message({ senderName, senderIcon, timeSent, content }: MessageProps) {
       <div className="chatHeaderAndContent">
         <div className="senderNameTimeSentSection">
           <div className="senderName">{senderName}</div>
-          <div className="timeTime">{timeSent}</div>
+          <div className="timeTime">{new Date().toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric" })}</div>
         </div>
         <div className="content">{content}</div>
       </div>
@@ -77,88 +87,106 @@ function Message({ senderName, senderIcon, timeSent, content }: MessageProps) {
 function Home() {
   const [chatName, setChatName] = useState("");
   const [connection, setConnection] = useState<HubConnection>();
-  const [messages, setMessages] = useState<Message>();
+  const [messages, setMessages] = useState<Message[]>([]);
   const { jwt, setJwt } = useOutletContext<PrivateOutletContext>();
+  const [chat, setChat] = useState("b7c75abe-426d-476d-ac8f-ed7a1506d923")
+
+  const receiveMessage = (content: string, time: string, userId: string, username: string) => {
+    console.log({ content, time, userId, username });
+    console.log(messages)
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      {
+        senderName: username,
+        senderIcon: testImage,
+        timeSent: new Date(Date.parse(time)),
+        content: content
+      }
+    ]);
+  }
   const joinChat = async () => {
     console.log(`jwt: ${jwt}`);
     let connection = new HubConnectionBuilder()
       .withUrl(`${process.env.REACT_APP_WEBSOCKETS_URL}/chat`, { accessTokenFactory() { return jwt; } })
       .configureLogging(LogLevel.Information)
       .build();
-    connection.on("ReceiveMessage", (message) => {
-      console.log("Message Received: ", message);
-    });
+    connection.on("ReceiveMessage", receiveMessage);
     await connection
       .start()
       .then(() => {
-        connection.invoke("JoinChat", { user: "Test User", room: "Test Room" });
+        connection.invoke("JoinChat", { Username: "Test User", ChatId: chat, UserId: jwtDecode<any>(jwt).userId });
       })
       .catch((error) => {
         console.log(error);
       });
     setConnection(connection);
   };
-  const getMessages = (chatId: string) => {
-    axios
+  const getMessages = async (chatId: string) => {
+    await axios
       .post(`${process.env.REACT_APP_API_URL}/api/getMessages`, {
         chatId: chatId,
       })
-      .then((response) => { })
+      .then((response) => {
+        const newMessages = response.data.messages.map((message: any) => {
+          return {
+            senderName: message.username,
+            senderIcon: testImage,
+            timeSent: new Date(Date.parse(message.timestamp)),
+            content: message.content,
+          };
+        });
+        console.log(newMessages)
+        setMessages(newMessages);
+      }
+      )
       .catch((error) => { });
   };
   React.useEffect(() => {
     if (jwt != '') {
-
-      joinChat();
+      getMessages(chat).then(() => {
+        joinChat();
+      });
     }
   }, [jwt]);
+
+  const sendMessage = (message: string) => {
+    if (connection) {
+      const timestamp = Date.now()
+      axios.post(`${process.env.REACT_APP_API_URL}/api/storeMessage`, { chatId: chat, timestamp: timestamp, content: message }).then(() => {
+        connection.invoke("SendMessage", message, timestamp.toString());
+      }
+      );
+    }
+  }
+
+  const placeMessages = (messages: Message[]) => {
+    console.log(messages)
+    return messages.map((message) => {
+      return (<Message
+        senderName={message.senderName}
+        senderIcon={testImage}
+        timeSent={message.timeSent}
+        content={message.content}
+      />
+      )
+    });
+
+  }
   return (
     <div className="homeScaffold">
       <div className="friendsSection">
-        <div style={{ textAlign: "center" }}>Chats</div>
+        <div onClick={() => receiveMessage("Test Message", "2023-11-21 20:54:31.434+13", "Test Id", "Test Name")} style={{ textAlign: "center" }}>Chats</div>
         <FriendsSectionItem name="Literally Him" profilePic={testImage} />
       </div>
       <div className="chatSection">
         <ChatHeader name="Literally him" profilePic={testImage} />
         <div className="chatContent">
-          <Message
-            senderName={"Literally me"}
-            senderIcon={testImage}
-            timeSent="13/11/2023 9:36 PM"
-            content={testMessage}
-          />
-          <Message
-            senderName={"Literally me"}
-            senderIcon={testImage}
-            timeSent="13/11/2023 9:36 PM"
-            content={testMessage}
-          />
-          <Message
-            senderName={"Literally me"}
-            senderIcon={testImage}
-            timeSent="13/11/2023 9:36 PM"
-            content={testMessage}
-          />
-          <Message
-            senderName={"Literally me"}
-            senderIcon={testImage}
-            timeSent="13/11/2023 9:36 PM"
-            content={testMessage}
-          />
-          <Message
-            senderName={"Literally me"}
-            senderIcon={testImage}
-            timeSent="13/11/2023 9:36 PM"
-            content={testMessage}
-          />
-          <Message
-            senderName={"Literally me"}
-            senderIcon={testImage}
-            timeSent="13/11/2023 9:36 PM"
-            content={testMessage}
-          />
+          <>
+
+            {placeMessages(messages)}
+          </>
         </div>
-        <MessageInputComponent placeholder={`Message ${chatName}`} />
+        <MessageInputComponent placeholder={`Message ${chatName}`} sendMessageFunc={sendMessage} />
       </div>
     </div>
   );
