@@ -1,6 +1,10 @@
 import React, { MutableRefObject, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import MChatLogo from '../assets/MChatLogo.svg'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
+
 
 interface RegistrationFormProps {
   errorMessage: string;
@@ -10,24 +14,40 @@ interface RegistrationFormProps {
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   setProfilePic: React.Dispatch<React.SetStateAction<File | undefined>>;
   profilePic: File | undefined
+  setUsername: React.Dispatch<React.SetStateAction<string>>;
 }
-function RegistrationForm({ errorMessage, setEmail, setPassword, setConfirmPassword, handleSubmit, profilePic, setProfilePic }: RegistrationFormProps) {
+function RegistrationForm({ errorMessage, setEmail, setPassword, setConfirmPassword, handleSubmit, profilePic, setProfilePic, setUsername }: RegistrationFormProps) {
   const fileInputRef = useRef() as MutableRefObject<HTMLInputElement>;
   return (
     <>
-      <form className="box form" onSubmit={handleSubmit}>
-        <div className='imgUploadSection'>
+      <form className="w-full max-w-md flex-col flex gap-3 rounded p-3  dark:bg-gray-800" onSubmit={handleSubmit}>
+        {/* <div className='imgUploadSection'>
           <img onClick={() => fileInputRef.current.click()} src={profilePic ? URL.createObjectURL(profilePic) : require("../assets/default_image.jpg")} className="profileImgMed"></img>
           <input type="file" ref={fileInputRef} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setProfilePic(event.target.files![0])}></input>
+        </div> */}
+        <div className='relative' >
+          <FontAwesomeIcon size='lg' icon={icon({ name: 'envelope' })} className="text-gray-400 absolute inset-y-5 left-3" />
+          <input type="text" className="form-input w-full" placeholder="Email" onChange={(event: React.ChangeEvent<HTMLInputElement>) => setEmail(event.target.value)}></input>
         </div>
-        <input type="text" placeholder="Email" onChange={(event: React.ChangeEvent<HTMLInputElement>) => setEmail(event.target.value)}></input>
-        <input type="password" placeholder="Password" onChange={(event: React.ChangeEvent<HTMLInputElement>) => setPassword(event.target.value)}></input>
-        <input type="password" placeholder="Confirm Password" onChange={(event: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(event.target.value)}></input>
+        <div className='relative' >
+          <FontAwesomeIcon size='lg' icon={icon({ name: 'user' })} className="text-gray-400 absolute inset-y-5 left-3" />
+          <input type="text" className="form-input w-full" placeholder="Username" onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUsername(event.target.value)}></input>
+        </div>
+        <div className='relative' >
+          <FontAwesomeIcon size='lg' icon={icon({ name: 'lock' })} className="text-gray-400 absolute inset-y-5 left-3" />
+          <input type="password" className="form-input w-full" placeholder="Password" onChange={(event: React.ChangeEvent<HTMLInputElement>) => setPassword(event.target.value)}></input>
+        </div>
+        <div className='relative' >
+          <FontAwesomeIcon size='lg' icon={icon({ name: 'lock' })} className="text-gray-400 absolute inset-y-5 left-3" />
+          <input type="password" className="form-input w-full" placeholder="Confirm Password" onChange={(event: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(event.target.value)}></input>
+        </div>
         {errorMessage && <div className="error">{errorMessage}</div>}
-        <button>Sign up</button>
+        <button className='btn'>Sign up</button>
+        <div>
+          Already have an account? <Link className="dark:text-blue-500" to={'/'} >Sign in</Link>
+        </div>
       </form>
       <div className="box">
-        Already have an account? <Link to={'/'} >Sign in</Link>
       </div>
     </>
   )
@@ -41,7 +61,7 @@ function VerificationMessage({ email }: VerificationMessageProps) {
       <div className="box" style={{ flexDirection: 'column' }}>
         <h3>Email Verification Required</h3>
         <p>Verification email has been sent to: <br /><b>{email}</b></p>
-        <p>Please verify your email address to complete registration.</p>
+        <p>Please verify your email address to complete the registration.</p>
       </div>
     </>
   )
@@ -50,6 +70,7 @@ function VerificationMessage({ email }: VerificationMessageProps) {
 function Registration() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [registered, setRegistered] = useState(false);
@@ -67,7 +88,8 @@ function Registration() {
   const register = () => {
     axios.post(`${process.env.REACT_APP_API_URL}/api/register`, {
       email: email,
-      password: password
+      password: password,
+      username: username
     }).then((response) => {
       response.status === 201 ? setRegistered(true) : setRegistered(false);
       console.log(response);
@@ -77,10 +99,13 @@ function Registration() {
   }
 
   return (
-    <div id='bodyDiv'>
-      <h1>MChat</h1>
-      <h2>Make connections...</h2>
-      {registered ? <VerificationMessage email={email} /> : <RegistrationForm errorMessage={errorMessage} setEmail={setEmail} setPassword={setPassword} setConfirmPassword={setConfirmPassword} handleSubmit={handleSubmit} setProfilePic={setProfilePic} profilePic={profilePic} />}
+    <div id='bodyDiv' className='flex-col flex bg-primary items-center gap-5 h-screen bg-[#EBF7FF] dark:bg-[#000C14]  dark:text-gray-200'>
+      <div className='p-4 flex flex-col gap-2'>
+        <img src={MChatLogo} className="h-24" alt="MChat Logo" />
+        <h2 className='font-medium italic'>Keep in touch...</h2>
+      </div>
+      {registered ? <VerificationMessage email={email} /> : <RegistrationForm errorMessage={errorMessage} setEmail={setEmail} setPassword={setPassword} setConfirmPassword={setConfirmPassword} handleSubmit={handleSubmit} setProfilePic={setProfilePic} profilePic={profilePic} setUsername={setUsername} />}
+
     </div>
   );
 }

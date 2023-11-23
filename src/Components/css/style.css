@@ -1,4 +1,18 @@
-    a {
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
+
+    @layer components {
+        .btn {
+            @apply h-14 rounded-lg dark:bg-[#0c4469];
+        }
+
+        .form-input {
+            @apply h-14 pl-10 rounded-md dark:bg-gray-900;
+        }
+    }
+
+    /* a {
         color: black;
     }
 
@@ -130,16 +144,16 @@
     }
 
     .MessageInputComponent {
-        height: 10%;
         background-color: purple;
         display: flex;
         flex-direction: row;
+        height: 80px;
     }
 
     .MessageInputComponent input {
         flex-grow: 1;
-        border-radius: 15px;
-        margin: 10px 10px 10px 10px;
+        border-radius: 10px;
+        height: 45px;
         padding-left: 15px;
     }
 
@@ -181,4 +195,4 @@
 
     .imgUploadSection input {
         display: none;
-    }
+    } */
