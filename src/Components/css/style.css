@@ -12,6 +12,10 @@
         }
     }
 
+    * {
+        scrollbar-width: thin;
+    }
+
     /* a {
         color: black;
     }
