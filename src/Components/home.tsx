@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, LegacyRef, MutableRefObject } from "react";
 
 import { useOutletContext } from "react-router-dom";
 import axios from "axios";
@@ -13,6 +13,7 @@ import {
 import { PrivateOutletContext } from "./protectedRoute";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core/import.macro";
+import useUserInfo from "./useIsAuth";
 enum Page {
   friends,
   chat
@@ -132,12 +133,21 @@ function FriendsPage({ friends, setChat, setCurrentPage }: { friends: Friend[], 
   }
   return (
     <>
-      <div className="flex flex-row flex-nowrap py-5 pl-5 items-center gap-3 ">
-        <FontAwesomeIcon size='xl' icon={icon({ name: 'user-group' })} className="  self-center" />
-        <div>Friends</div>
+      <div className="flex flex-row flex-nowrap gap-3 items-center py-3">
+        <div className="flex flex-row flex-nowrap pl-5 p-2 pr-3 items-center gap-3 border-r-2 border-r-gray-400">
+          <FontAwesomeIcon size='xl' icon={icon({ name: 'user-group' })} />
+          <div>Friends</div>
+        </div>
+        <div className="hover:bg-slate-50/50 active:text-gray-50 px-3 p-1  rounded-md">
+          All
+        </div>
+        <div className="hover:bg-slate-50/50 active:text-gray-50 px-3  p-1 rounded-md">
+          Pending
+        </div>
       </div>
-      <div className="grow bg-secondary flex">
-        <div className="rounded-md w-full m-1 bg-background">
+      <div className="grow rounded-md bg-secondary flex">
+        <div className="rounded-sm w-full m-1 bg-background">
+          <div className="p-3">All friends - {friends.length}</div>
           {insertFriends()}
         </div>
       </div>
@@ -239,12 +249,47 @@ function ChatContent({ chat }: { chat: Chat }) {
     </>
   )
 }
+function Settings({ dialogRef }: { dialogRef: React.RefObject<HTMLDialogElement> }) {
+  const [profilePic, setProfilePic] = useState<File>();
+  const { userInfo, setUserInfo } = useUserInfo()
+  const [username, setUsername] = useState(userInfo.username);
+  const [errorMessage, setErrorMessage] = useState('')
+  const fileInputRef = useRef() as MutableRefObject<HTMLInputElement>;
+  const updateDetails = async () => {
+    axios.put(`${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/profilePicture`)
+
+  }
+  return (
+    <dialog ref={dialogRef} className="absolute h-[25rem] w-5/6 sm:w-[30rem]  border-2 border-gray-200 rounded-md m-auto top-1/2 bottom-1/2 dark:bg-gray-800 dark:text-gray-200" >
+      <div className=" p-5 flex flex-col gap-3">
+        <div className="flex-row flex justify-between "><div className="Settigns">Settings</div>
+          <FontAwesomeIcon size='xl' icon={icon({ name: 'xmark' })} className="  self-center" onClick={() => dialogRef.current?.close()} />
+        </div>
+        <div className='w-full  flex-row flex justify-center'>
+          <img onClick={() => fileInputRef.current.click()} src={profilePic ? URL.createObjectURL(profilePic) : require("../assets/default_image.jpg")} className="h-44 w-44 rounded-full object-cover" />
+          <input className="hidden" type="file" ref={fileInputRef} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setProfilePic(event.target.files![0])}></input>
+        </div>
+        <div className="flex flex-col justify-end grow gap-3 pb-4">
+          <div className='relative' >
+            <FontAwesomeIcon size='lg' icon={icon({ name: 'user' })} className="text-gray-400 absolute inset-y-5 left-3" />
+            <input type="text" className="form-input w-full" placeholder="Username" value={username} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUsername(event.target.value)}></input>
+          </div>
+          {errorMessage && <div className="error">{errorMessage}</div>}
+          <button className='btn'>Update</button>
+        </div>
+      </div>
+    </dialog>
+  )
+}
 function Home() {
   const [friends, setFriends] = useState<Friend[]>([]); // [id, name, profilePic
   const [chat, setChat] = useState<Chat>({ name: "", chatId: "" });
   const [convoSearchQuery, setConvoSearchQuery] = useState("")
   const [currentPage, setCurrentPage] = useState<Page>(Page.friends)
   const { jwt, setJwt } = useOutletContext<PrivateOutletContext>();
+  const { userInfo, setUserInfo } = useUserInfo();
+
+  const dialogRef = useRef<HTMLDialogElement>(null);
   React.useEffect(() => {
     if (jwt != '') {
       getFriends(jwtDecode<any>(jwt).userId);
@@ -279,6 +324,7 @@ function Home() {
         )
     }
   }
+  console.log(userInfo)
   return (
     <div id='bodyDiv' className='flex-row flex h-screen bg-[#EBF7FF] dark:bg-[#000C14]  dark:text-gray-200'>
       <div className="bg-background w-72 flex flex-col min-w-[18rem]">
@@ -295,19 +341,20 @@ function Home() {
         </div>
         <div className="flex flew-row gap-3 p-3 bg-slate-900">
           <div className="flex flex-row gap-3">
-            <img className="h-10 rounded-full" src={jwt ? `${process.env.REACT_APP_API_URL}/api/users/${jwtDecode<any>(jwt).userId}/profilePicture` : ''} onError={event => {
+            <img className="h-10 w-10 rounded-full object-cover" src={jwt ? `${process.env.REACT_APP_API_URL}/api/users/${userInfo ? userInfo.userId : ''}/profilePicture` : ''} onError={event => {
               // @ts-ignore
               event.target.src = defaultProfilePic
             }}  ></img>
-            <div>{jwt ? jwtDecode<any>(jwt).username : "You"}</div>
+            <div>{userInfo ? userInfo.username : "You"}</div>
           </div>
           <div className="grow flex justify-end">
-            <FontAwesomeIcon size='xl' icon={icon({ name: 'cog' })} className="text-gray-400 pr-3 self-center" />
+            <FontAwesomeIcon size='xl' icon={icon({ name: 'cog' })} className="text-gray-400 pr-3 self-center hover:text-gray-200 active:text-gray-50" onClick={() => dialogRef.current?.open ? dialogRef.current?.close() : dialogRef.current?.show()} />
           </div>
         </div>
       </div>
       <div className="flex flex-col flex-grow">
         {getCurrentPage()}
+        <Settings dialogRef={dialogRef} />
       </div>
     </div>
   );

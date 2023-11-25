@@ -1,21 +1,29 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 
-export default function useIsAuth() {
-  const getIsAuth = () => {
-  const isAuthString = sessionStorage.getItem('isAuth');
-  return isAuthString === 'true';
+export type userInfo = {
+  username: string,
+  userId: string
+}
+export default function useUserInfo() {
+  const getUserInfo = () => {
+    const userInfoString = sessionStorage.getItem('userInfo');
+    if (!userInfoString) {
+      return { username: "", userId: "" };
+    } else {
+      return JSON.parse(userInfoString) as userInfo;
+    }
   }
 
-  const [isAuth, setIsAuth] = useState(getIsAuth())
+  const [userInfo, setUserInfo] = useState(getUserInfo())
 
-  const saveIsAuth = (newIsAuth : boolean) => {
-    console.log(`Setting isAuth to: ${newIsAuth}`)
-    sessionStorage.setItem('isAuth', JSON.stringify(newIsAuth));
-    setIsAuth(newIsAuth);
+  const saveUserInfo = (newUserInfo: userInfo) => {
+    console.log(`Updating user info to ${newUserInfo}`)
+    sessionStorage.setItem('userInfo', JSON.stringify(newUserInfo));
+    setUserInfo(newUserInfo);
   }
   return {
-    setIsAuth : saveIsAuth, isAuth: isAuth
+    setUserInfo: saveUserInfo, userInfo: userInfo
   }
-  } 
+} 

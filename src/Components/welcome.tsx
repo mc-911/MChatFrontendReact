@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
-import useIsAuth from './useIsAuth';
+import useUserInfo, { userInfo } from './useIsAuth';
+
 import MChatLogo from '../assets/MChatLogo.svg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { setSourceMapRange } from 'typescript';
 function Welcome() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
   const [confirmationMessage, setConfirmationMessage] = useState('')
-  const { isAuth, setIsAuth } = useIsAuth();
+  const { setUserInfo, userInfo } = useUserInfo();
   const emailVerificationToken = searchParams.get("token");
   const navigate = useNavigate();
 
@@ -43,7 +45,7 @@ function Welcome() {
       password: password
     }).then((response) => {
       if (response.status == 200) {
-        setIsAuth(true)
+        setUserInfo(response.data as userInfo)
         navigate("/home")
       }
     }).catch((error) => {

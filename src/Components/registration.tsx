@@ -17,7 +17,6 @@ interface RegistrationFormProps {
   setUsername: React.Dispatch<React.SetStateAction<string>>;
 }
 function RegistrationForm({ errorMessage, setEmail, setPassword, setConfirmPassword, handleSubmit, profilePic, setProfilePic, setUsername }: RegistrationFormProps) {
-  const fileInputRef = useRef() as MutableRefObject<HTMLInputElement>;
   return (
     <>
       <form className="w-full max-w-md flex-col flex gap-3 rounded p-3  dark:bg-gray-800" onSubmit={handleSubmit}>
