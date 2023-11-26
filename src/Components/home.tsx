@@ -14,6 +14,7 @@ import { PrivateOutletContext } from "./protectedRoute";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core/import.macro";
 import useUserInfo from "./useIsAuth";
+import { error } from "console";
 enum Page {
   friends,
   chat
@@ -256,7 +257,20 @@ function Settings({ dialogRef }: { dialogRef: React.RefObject<HTMLDialogElement>
   const [errorMessage, setErrorMessage] = useState('')
   const fileInputRef = useRef() as MutableRefObject<HTMLInputElement>;
   const updateDetails = async () => {
-    axios.put(`${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/profilePicture`)
+    if (profilePic) {
+      const formData = new FormData();
+      formData.append("profilePicture", profilePic)
+      axios.put(`${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/profilePicture`, formData).catch((error) => {
+        console.log(error)
+      })
+    }
+    if (username != userInfo.username) {
+      axios.put(`${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/username`, { new_username: username }).then((response) => {
+        setUserInfo({ userId: userInfo.userId, username: response.data.new_username })
+      }).catch((error) => {
+        console.log(error)
+      })
+    }
 
   }
   return (
@@ -266,7 +280,7 @@ function Settings({ dialogRef }: { dialogRef: React.RefObject<HTMLDialogElement>
           <FontAwesomeIcon size='xl' icon={icon({ name: 'xmark' })} className="  self-center" onClick={() => dialogRef.current?.close()} />
         </div>
         <div className='w-full  flex-row flex justify-center'>
-          <img onClick={() => fileInputRef.current.click()} src={profilePic ? URL.createObjectURL(profilePic) : require("../assets/default_image.jpg")} className="h-44 w-44 rounded-full object-cover" />
+          <img onClick={() => fileInputRef.current.click()} src={profilePic ? URL.createObjectURL(profilePic) : `${process.env.REACT_APP_API_URL}/api/users/${userInfo ? userInfo.userId : ''}/profilePicture`} className="h-44 w-44 rounded-full object-cover" />
           <input className="hidden" type="file" ref={fileInputRef} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setProfilePic(event.target.files![0])}></input>
         </div>
         <div className="flex flex-col justify-end grow gap-3 pb-4">
@@ -275,7 +289,7 @@ function Settings({ dialogRef }: { dialogRef: React.RefObject<HTMLDialogElement>
             <input type="text" className="form-input w-full" placeholder="Username" value={username} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUsername(event.target.value)}></input>
           </div>
           {errorMessage && <div className="error">{errorMessage}</div>}
-          <button className='btn'>Update</button>
+          <button className='btn' onClick={updateDetails}>Update</button>
         </div>
       </div>
     </dialog>
@@ -341,7 +355,7 @@ function Home() {
         </div>
         <div className="flex flew-row gap-3 p-3 bg-slate-900">
           <div className="flex flex-row gap-3">
-            <img className="h-10 w-10 rounded-full object-cover" src={jwt ? `${process.env.REACT_APP_API_URL}/api/users/${userInfo ? userInfo.userId : ''}/profilePicture` : ''} onError={event => {
+            <img className="h-10 w-10 rounded-full object-cover" src={`${process.env.REACT_APP_API_URL}/api/users/${userInfo ? userInfo.userId : ''}/profilePicture`} onError={event => {
               // @ts-ignore
               event.target.src = defaultProfilePic
             }}  ></img>
