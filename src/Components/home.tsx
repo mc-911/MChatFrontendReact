@@ -23,6 +23,7 @@ enum Page {
 type Chat = {
   chatId: string;
   name: string;
+  imageUrl: string;
 }
 interface FriendsSectionItemProps {
   name: string;
@@ -32,15 +33,12 @@ interface FriendsSectionItemProps {
   setChat: React.Dispatch<React.SetStateAction<Chat>>;
   setCurrentPage: React.Dispatch<React.SetStateAction<Page>>;
 }
-const testMessage =
-  "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?";
-const testImage =
-  "https://www.rollingstone.com/wp-content/uploads/2018/06/bladerunner-2-trailer-watch-8bd914b0-744f-43fe-9904-2564e9d7e15c.jpg";
+
 function FriendsSectionItem({ name, profilePic, chatId, active, setChat, setCurrentPage }: FriendsSectionItemProps) {
   return (
-    <div onClick={() => { setChat({ name, chatId }); setCurrentPage(Page.chat) }} className={`flex flex-row  gap-4 items-center h-12 p-1 pl-3 m-1 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${active ? 'dark:bg-slate-50/50 dark:text-gray-50' : 'dark:bg-background'} `}>
+    <div onClick={() => { setChat({ name, chatId, imageUrl: profilePic }); setCurrentPage(Page.chat) }} className={`flex flex-row  gap-4 items-center h-12 p-1 pl-3 m-1 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${active ? 'dark:bg-slate-50/50 dark:text-gray-50' : 'dark:bg-background'} `}>
 
-      <img src={profilePic} alt="Uh Oh" className="w-8 rounded-full" onError={event => {
+      <img src={profilePic} alt="Uh Oh" className="w-8 h-8 object-cover rounded-full" onError={event => {
         // @ts-ignore
         event.target.src = defaultProfilePic
       }} />
@@ -50,12 +48,15 @@ function FriendsSectionItem({ name, profilePic, chatId, active, setChat, setCurr
 }
 interface ChatHeaderProps {
   name: string;
-  profilePic: string;
+  chatLogo: string;
 }
-function ChatHeader({ name, profilePic }: ChatHeaderProps) {
+function ChatHeader({ name, chatLogo }: ChatHeaderProps) {
   return (
     <div className="flex flex-row flex-nowrap p-3 items-center gap-2">
-      <img src={profilePic} className="h-10 w-10 rounded-full" />
+      <img src={chatLogo} className="h-10 w-10 rounded-full object-cover" onError={event => {
+        // @ts-ignore
+        event.target.src = defaultProfilePic
+      }} />
       <div>{name}</div>
     </div>
   );
@@ -83,13 +84,13 @@ function MessageInputComponent({ placeholder, sendMessageFunc }: MessageInputCom
 }
 interface MessageProps {
   senderName: string;
-  senderIcon: string;
+  senderId: string;
   timeSent: Date;
   content: string;
 }
 type Message = {
   senderName: string;
-  senderIcon: string;
+  senderId: string;
   timeSent: Date;
   content: string;
 };
@@ -98,39 +99,162 @@ type Friend = {
   username: string;
   chat_id: string;
 };
-function Message({ senderName, senderIcon, timeSent, content }: MessageProps) {
+function Message({ senderName, senderId, timeSent, content }: MessageProps) {
   return (
     <div className="flex flex-row gap-3 m-3">
-      <img src={senderIcon} className="h-10 w-10 rounded-full" onError={event => {
+      <img src={`http://localhost:3000/api/users/${senderId}/profilePicture`} className="h-10 w-10 rounded-full object-cover" onError={event => {
         // @ts-ignore
         event.target.src = defaultProfilePic
       }} />
       <div className="flex flex-col">
         <div className="flex flow-row gap-3 items-end">
           <div className="font-semibold">{senderName}</div>
-          <div className="text-sm text-gray-400">{new Date().toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric" })}</div>
+          <div className="text-sm text-gray-400">{timeSent.toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric" })}</div>
         </div>
         <div className="grow">{content}</div>
       </div>
     </div>
   );
 }
-function FriendsPage({ friends, setChat, setCurrentPage }: { friends: Friend[], setChat: React.Dispatch<React.SetStateAction<Chat>>, setCurrentPage: React.Dispatch<React.SetStateAction<Page>> }) {
+type PendingRequest = {
+  friend_request_id: string;
+  user_id: string
+  username: string;
+  requested: string;
+};
+function PendingRequests({ refreshFriendsFunc }: { refreshFriendsFunc: () => Promise<void> }) {
+  const [requests, setRequests] = useState<PendingRequest[]>([]);
+  const [friendEmail, setFriendEmail] = useState('');
+  const { userInfo } = useUserInfo();
+  useEffect(() => {
+    getPendingRequests()
+  }, [])
+  const getPendingRequests = () => {
+    axios.get(`${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/friend_request`).then((response) => {
+      setRequests(response.data)
+    }).catch((error) => {
+      console.log(error)
+    })
+  }
+  const acceptRequest = (friend_request_id: string) => {
+    axios.post(`${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/accept_request`, { request_id: friend_request_id }).then((response) => {
+      console.log("Request accepted refresh")
+      getPendingRequests()
+      refreshFriendsFunc()
+    }).catch((error) => {
+      console.log(error)
+    })
+  }
+  const denyRequest = (friend_request_id: string) => {
+    axios.post(`${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/deny_request`, { request_id: friend_request_id }).then((response) => {
+      console.log("Deny accepted refresh")
+      getPendingRequests()
+    }).catch((error) => {
+      console.log(error)
+    })
+  }
+  const sendFriendRequest = (friend_email: string) => {
+    axios.post(`${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/friend_request`, { friend_email }).then((response) => {
+      console.log("Request sent")
+      getPendingRequests()
+      setFriendEmail('')
+    }).catch((error) => {
+      console.log(error)
+    })
+  }
+  const insertRequests = () => {
+    return requests.map((request) => {
+      return (<div className="flex flex-row border-t-2 border-gray-400">
+        <div className="flex flex-row gap-3 items-center m-3">
+          <img src={`http://localhost:3000/api/users/${request.user_id}/profilePicture`} alt="Uh Oh" className="w-8 rounded-full" onError={event => {
+            // @ts-ignore
+            event.target.src = defaultProfilePic
+          }} />
+          <div>{request.username}</div> </div>
+        <div className="flex flex-row grow items-center justify-end gap-5 pr-5">
+          {request.requested === "false" ? <FontAwesomeIcon onClick={() => acceptRequest(request.friend_request_id)} size='xl' icon={icon({ name: 'check-circle' })} className="text-gray-400 hover:text-green-300 active:text-gray-50" /> : ''}
+          <FontAwesomeIcon onClick={() => denyRequest(request.friend_request_id)} size='xl' icon={icon({ name: 'xmark-circle' })} className="text-gray-400  hover:text-red-500 active:text-red-700" />
+        </div>
+      </div>)
+    })
+  }
+  return (<>
+    <div className="rounded-sm w-full m-1 bg-background flex flex-col gap-2">
+      <div className="mx-3 relative">
+        <input type="text" className="rounded-md dark:bg-gray-800 h-14 pl-3 mt-4 w-full min-w-min pr-3" placeholder="You can add friends with their email address" onChange={(e) => setFriendEmail(e.target.value)} onKeyDown={(event) => {
+          if (event.key == "Enter") {
+            sendFriendRequest(friendEmail)
+          }
+        }} />
+        <button className="bg-secondary py-3 px-2 absolute right-7 top-5 rounded-md" onClick={() => sendFriendRequest(friendEmail)}>Send Friend Request</button>
+      </div>
+      <div className="p-3">Pending Requests - {requests.length}</div>
+      {insertRequests()}
+    </div>
+  </>)
+
+}
+
+enum FriendsPageSection {
+  AllFriends,
+  PendingRequests
+}
+function AllFriends({ friends, setChat, setCurrentPage, refreshFriendsFunc }: { friends: Friend[], setChat: React.Dispatch<React.SetStateAction<Chat>>, setCurrentPage: React.Dispatch<React.SetStateAction<Page>>, refreshFriendsFunc: () => Promise<void> }) {
+
+  const { userInfo } = useUserInfo();
+
+  const getFriends = async () => {
+    await axios
+      .get(`${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/friends`)
+      .then((response) => {
+        const friends: Friend[] = response.data.friends;
+        console.log(friends, "hello")
+        refreshFriendsFunc()
+      })
+      .catch((error) => { });
+  }
+
+  const removeFriend = (friend_id: string) => {
+    axios.delete(`${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/friends/${friend_id}`).then((response) => {
+      console.log("Friend removed")
+      getFriends();
+    }).catch((error) => {
+      console.log(error)
+    })
+  }
+
   const insertFriends = () => {
     return friends.map((friend) => {
       return (<div className="flex flex-row border-t-2 border-gray-400">
         <div className="flex flex-row gap-3 items-center m-3">
-          <img src={`http://localhost:3000/api/users/${friend.user_id}/profilePicture`} alt="Uh Oh" className="w-8 rounded-full" onError={event => {
+          <img src={`http://localhost:3000/api/users/${friend.user_id}/profilePicture`} alt="Uh Oh" className="w-8 h-8 object-cover rounded-full" onError={event => {
             // @ts-ignore
             event.target.src = defaultProfilePic
           }} />
           <div>{friend.username}</div> </div>
         <div className="flex flex-row grow items-center justify-end gap-5 pr-5">
-          <FontAwesomeIcon onClick={() => { setChat({ name: friend.username, chatId: friend.chat_id }); setCurrentPage(Page.chat) }} size='xl' icon={icon({ name: 'message' })} className="text-gray-400 hover:text-gray-200 active:text-gray-50" />
-          <FontAwesomeIcon size='xl' icon={icon({ name: 'xmark-circle' })} className="text-gray-400 pb-1 hover:text-red-500 active:text-red-700" />
+          <FontAwesomeIcon onClick={() => { setChat({ name: friend.username, chatId: friend.chat_id, imageUrl: `http://localhost:3000/api/users/${friend.user_id}/profilePicture` }); setCurrentPage(Page.chat) }} size='xl' icon={icon({ name: 'message' })} className="text-gray-400 hover:text-gray-200 active:text-gray-50" />
+          <FontAwesomeIcon onClick={() => removeFriend(friend.user_id)} size='xl' icon={icon({ name: 'xmark-circle' })} className="text-gray-400 pb-1 hover:text-red-500 active:text-red-700" />
         </div>
       </div>)
     })
+  }
+  return (<>
+    <div className="rounded-sm w-full m-1 bg-background">
+      <div className="p-3">All friends - {friends.length}</div>
+      {insertFriends()}
+    </div>
+  </>)
+}
+function FriendsPage({ friends, setChat, setCurrentPage, refreshFriendsFunc }: { friends: Friend[], setChat: React.Dispatch<React.SetStateAction<Chat>>, setCurrentPage: React.Dispatch<React.SetStateAction<Page>>, refreshFriendsFunc: () => Promise<void> }) {
+  const [friendsPageSection, setFriendsPageSection] = useState<FriendsPageSection>(FriendsPageSection.AllFriends)
+  const getCurrentSection = () => {
+    switch (friendsPageSection) {
+      case FriendsPageSection.AllFriends:
+        return (<AllFriends friends={friends} refreshFriendsFunc={refreshFriendsFunc} setCurrentPage={setCurrentPage} setChat={setChat} />)
+      case FriendsPageSection.PendingRequests:
+        return (<PendingRequests refreshFriendsFunc={refreshFriendsFunc} />)
+    }
   }
   return (
     <>
@@ -139,18 +263,22 @@ function FriendsPage({ friends, setChat, setCurrentPage }: { friends: Friend[], 
           <FontAwesomeIcon size='xl' icon={icon({ name: 'user-group' })} />
           <div>Friends</div>
         </div>
-        <div className="hover:bg-slate-50/50 active:text-gray-50 px-3 p-1  rounded-md">
-          All
-        </div>
-        <div className="hover:bg-slate-50/50 active:text-gray-50 px-3  p-1 rounded-md">
-          Pending
+        <div className="flex flex-row items-center grow justify-between pr-3">
+          <div className="flex flex-row gap-3">
+            <div onClick={() => setFriendsPageSection(FriendsPageSection.AllFriends)} className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 rounded-md ${friendsPageSection == FriendsPageSection.AllFriends ? "bg-slate-50/50 text-gray-50" : ''}`}>
+              All
+            </div>
+            <div onClick={() => setFriendsPageSection(FriendsPageSection.PendingRequests)} className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 rounded-md ${friendsPageSection == FriendsPageSection.PendingRequests ? "bg-slate-50/50 text-gray-50" : ''}`}>
+              Pending
+            </div>
+          </div>
+          <button className="bg-slate-300 text-gray-950 font-semibold p-2 rounded-md" onClick={() => setFriendsPageSection(FriendsPageSection.PendingRequests)} >
+            Add Friend
+          </button>
         </div>
       </div>
       <div className="grow rounded-md bg-secondary flex">
-        <div className="rounded-sm w-full m-1 bg-background">
-          <div className="p-3">All friends - {friends.length}</div>
-          {insertFriends()}
-        </div>
+        {getCurrentSection()}
       </div>
     </>
   )
@@ -158,13 +286,17 @@ function FriendsPage({ friends, setChat, setCurrentPage }: { friends: Friend[], 
 function ChatContent({ chat }: { chat: Chat }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [connection, setConnection] = useState<HubConnection>();
+  const { userInfo } = useUserInfo()
   const { jwt, setJwt } = useOutletContext<PrivateOutletContext>();
   const sendMessage = (message: string) => {
     if (connection) {
       const timestamp = Date.now()
       axios.post(`${process.env.REACT_APP_API_URL}/api/storeMessage`, { chatId: chat.chatId, timestamp: timestamp, content: message }).then(() => {
-        if (connection.state === HubConnectionState.Connected)
+        if (connection.state === HubConnectionState.Connected) {
+
+          console.log("Real time sending")
           connection.invoke("SendMessage", message, timestamp.toString());
+        }
       }
       );
     }
@@ -177,7 +309,7 @@ function ChatContent({ chat }: { chat: Chat }) {
     }
   }, [])
   const joinChat = async () => {
-    console.log(`jwt: ${jwt}`);
+    console.log(`Joining chat`);
     let connection = new HubConnectionBuilder()
       .withUrl(`${process.env.REACT_APP_WEBSOCKETS_URL}/chat`, { accessTokenFactory() { return jwt; } })
       .configureLogging(LogLevel.Information)
@@ -186,7 +318,9 @@ function ChatContent({ chat }: { chat: Chat }) {
     await connection
       .start()
       .then(() => {
-        connection.invoke("JoinChat", { Username: "Test User", ChatId: chat, UserId: jwtDecode<any>(jwt).userId });
+        connection.invoke("JoinChat", { Username: userInfo.username, ChatId: chat.chatId, UserId: userInfo.userId }).catch((error) => {
+          console.log(error)
+        });
       })
       .catch((error) => {
         console.log(error);
@@ -200,7 +334,7 @@ function ChatContent({ chat }: { chat: Chat }) {
       ...prevMessages,
       {
         senderName: username,
-        senderIcon: testImage,
+        senderId: userId,
         timeSent: new Date(Date.parse(time)),
         content: content
       }
@@ -211,7 +345,7 @@ function ChatContent({ chat }: { chat: Chat }) {
     return messages.map((message) => {
       return (<Message
         senderName={message.senderName}
-        senderIcon={testImage}
+        senderId={message.senderId}
         timeSent={message.timeSent}
         content={message.content}
       />
@@ -227,7 +361,7 @@ function ChatContent({ chat }: { chat: Chat }) {
         const newMessages = response.data.messages.map((message: any) => {
           return {
             senderName: message.username,
-            senderIcon: testImage,
+            senderId: message.owner,
             timeSent: new Date(Date.parse(message.timestamp)),
             content: message.content,
           };
@@ -240,7 +374,7 @@ function ChatContent({ chat }: { chat: Chat }) {
   };
   return (
     <>
-      <ChatHeader name={chat.name} profilePic={testImage} />
+      <ChatHeader name={chat.name} chatLogo={chat.imageUrl} />
       <div className="grow bg-secondary overflow-auto scroll">
         <>
           {messages ? placeMessages(messages) : <div>Start up a conversation</div>}
@@ -297,7 +431,7 @@ function Settings({ dialogRef }: { dialogRef: React.RefObject<HTMLDialogElement>
 }
 function Home() {
   const [friends, setFriends] = useState<Friend[]>([]); // [id, name, profilePic
-  const [chat, setChat] = useState<Chat>({ name: "", chatId: "" });
+  const [chat, setChat] = useState<Chat>({ name: "", chatId: "", imageUrl: "" });
   const [convoSearchQuery, setConvoSearchQuery] = useState("")
   const [currentPage, setCurrentPage] = useState<Page>(Page.friends)
   const { jwt, setJwt } = useOutletContext<PrivateOutletContext>();
@@ -306,13 +440,13 @@ function Home() {
   const dialogRef = useRef<HTMLDialogElement>(null);
   React.useEffect(() => {
     if (jwt != '') {
-      getFriends(jwtDecode<any>(jwt).userId);
+      getFriends();
     }
   }, [jwt]);
 
-  const getFriends = async (user_id: string) => {
+  const getFriends = async () => {
     await axios
-      .get(`${process.env.REACT_APP_API_URL}/api/users/${user_id}/friends`)
+      .get(`${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/friends`)
       .then((response) => {
         const friends: Friend[] = response.data.friends;
         setFriends(friends);
@@ -331,7 +465,7 @@ function Home() {
   const getCurrentPage = () => {
     switch (currentPage) {
       case Page.friends:
-        return (<FriendsPage setCurrentPage={setCurrentPage} setChat={setChat} friends={friends} />)
+        return (<FriendsPage setCurrentPage={setCurrentPage} setChat={setChat} friends={friends} refreshFriendsFunc={getFriends} />)
       case Page.chat:
         return (
           <ChatContent chat={chat} />
