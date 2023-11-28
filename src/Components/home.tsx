@@ -142,7 +142,7 @@ function MessageComponent({
       <img
         src={`http://localhost:3000/api/users/${senderId}/profilePicture`}
         className="h-10 w-10 rounded-full object-cover"
-        alt="Sender Profile Picture"
+        alt="Sender Profile"
         onError={(event) => {
           // @ts-ignore
           event.target.src = defaultProfilePic;
@@ -552,7 +552,7 @@ function ChatContent({ chat }: { chat: Chat }) {
         joinChat();
       });
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const placeMessages = (messages: Message[]) => {
     console.log(messages);
     return messages.map((message) => {
@@ -669,7 +669,7 @@ function Settings({
         <div className="w-full  flex-row flex justify-center">
           <img
             onClick={() => fileInputRef.current.click()}
-            alt="Profile Picture Selector"
+            alt="Profile Selector"
             src={
               profilePic
                 ? URL.createObjectURL(profilePic)
@@ -816,7 +816,7 @@ function Home() {
           <div className="flex flex-row gap-3">
             <img
               className="h-10 w-10 rounded-full object-cover"
-              alt="Profile Picture"
+              alt="Profile"
               src={`${process.env.REACT_APP_API_URL}/api/users/${
                 userInfo ? userInfo.userId : ""
               }/profilePicture`}

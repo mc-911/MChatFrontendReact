@@ -13,7 +13,6 @@ function Welcome() {
   const [searchParams] = useSearchParams();
   const [confirmationMessage, setConfirmationMessage] = useState("");
   const { setUserInfo } = useUserInfo();
-  const emailVerificationToken = searchParams.get("token");
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -39,8 +38,8 @@ function Welcome() {
   };
 
   useEffect(() => {
-    if (emailVerificationToken !== null) {
-      verifyToken(emailVerificationToken);
+    if (searchParams.get("token") !== null) {
+      verifyToken(searchParams.get("token")!);
     }
   }, []);
 
