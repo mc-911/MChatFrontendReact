@@ -15,6 +15,8 @@ function Welcome() {
   const { setUserInfo } = useUserInfo();
   const navigate = useNavigate();
 
+
+  console.log(process.env.REACT_APP_API_URL)
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     login();
