@@ -41,7 +41,7 @@ function Welcome() {
     if (searchParams.get("token") !== null) {
       verifyToken(searchParams.get("token")!);
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const login = () => {
     axios

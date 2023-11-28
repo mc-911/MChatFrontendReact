@@ -193,7 +193,7 @@ function PendingRequests({
   };
   useEffect(() => {
     getPendingRequests();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const acceptRequest = (friend_request_id: string) => {
     axios
       .post(
@@ -747,7 +747,7 @@ function Home() {
     if (jwt !== "") {
       getFriends();
     }
-  }, [jwt]);
+  }, [jwt]); // eslint-disable-line react-hooks/exhaustive-deps
   const getFriendsList = () => {
     return friends.map((friend) => {
       return (
