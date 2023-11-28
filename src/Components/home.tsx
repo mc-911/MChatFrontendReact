@@ -384,9 +384,9 @@ function ChatContent({ chat }: { chat: Chat }) {
     </>
   )
 }
-function Settings({ dialogRef }: { dialogRef: React.RefObject<HTMLDialogElement> }) {
+function Settings({ dialogRef, setImgRefreshValue, setUserInfo }: { dialogRef: React.RefObject<HTMLDialogElement>, setImgRefreshValue: React.Dispatch<React.SetStateAction<number>>, setUserInfo: (newUserInfo: typeof userInfo) => void }) {
   const [profilePic, setProfilePic] = useState<File>();
-  const { userInfo, setUserInfo } = useUserInfo()
+  const { userInfo } = useUserInfo()
   const [username, setUsername] = useState(userInfo.username);
   const [errorMessage, setErrorMessage] = useState('')
   const fileInputRef = useRef() as MutableRefObject<HTMLInputElement>;
@@ -396,6 +396,8 @@ function Settings({ dialogRef }: { dialogRef: React.RefObject<HTMLDialogElement>
       formData.append("profilePicture", profilePic)
       axios.put(`${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/profilePicture`, formData).catch((error) => {
         console.log(error)
+      }).then((response) => {
+        setImgRefreshValue(1);
       })
     }
     if (username != userInfo.username) {
@@ -436,6 +438,7 @@ function Home() {
   const [currentPage, setCurrentPage] = useState<Page>(Page.friends)
   const { jwt, setJwt } = useOutletContext<PrivateOutletContext>();
   const { userInfo, setUserInfo } = useUserInfo();
+  const [imgRefreshValue, setImgRefreshValue] = useState(0);
 
   const dialogRef = useRef<HTMLDialogElement>(null);
   React.useEffect(() => {
@@ -487,6 +490,7 @@ function Home() {
             {getFriendsList()}
           </>
         </div>
+        <div className="hidden">{imgRefreshValue}</div>
         <div className="flex flew-row gap-3 p-3 bg-slate-900">
           <div className="flex flex-row gap-3">
             <img className="h-10 w-10 rounded-full object-cover" src={`${process.env.REACT_APP_API_URL}/api/users/${userInfo ? userInfo.userId : ''}/profilePicture`} onError={event => {
@@ -502,7 +506,7 @@ function Home() {
       </div>
       <div className="flex flex-col flex-grow">
         {getCurrentPage()}
-        <Settings dialogRef={dialogRef} />
+        <Settings dialogRef={dialogRef} setImgRefreshValue={setImgRefreshValue} setUserInfo={setUserInfo} />
       </div>
     </div>
   );
