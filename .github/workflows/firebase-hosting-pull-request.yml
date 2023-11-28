@@ -12,10 +12,12 @@ on:
 jobs:
    deploy_live_website:
     runs-on: ubuntu-latest
-    env:
-      REACT_APP_API_URL: '${{ secrets.REACT_APP_API_URL}}'
     steps:
       - uses: actions/checkout@v3
+      - name: create env file
+        run: |
+          touch .env
+          echo REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL}} >> .env
       - run: npm ci && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
