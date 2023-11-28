@@ -1,5 +1,5 @@
-import React, { MutableRefObject, useRef, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import MChatLogo from "../assets/MChatLogo.svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -139,7 +139,7 @@ function Registration() {
   const [registered, setRegistered] = useState(false);
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (password.trim().length == 0) {
+    if (password.trim().length === 0) {
       setErrorMessage("Password cannot be empty");
     } else if (password !== confirmPassword) {
       setErrorMessage("Passwords do not match");

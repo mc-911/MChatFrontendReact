@@ -1,13 +1,12 @@
-import { Outlet, Navigate, useOutletContext } from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
 import axios from "axios";
 import useUserInfo from "./useIsAuth";
 import { useEffect, useState } from "react";
 export interface PrivateOutletContext {
-  jwt: string,
-  setJwt: (value: React.SetStateAction<string>) => void
+  jwt: string;
+  setJwt: (value: React.SetStateAction<string>) => void;
 }
 const PrivateRoutes = () => {
-  const { userInfo, setUserInfo } = useUserInfo();
   const [jwt, setJwt] = useState("");
   const [isAuth, setIsAuth] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // Add this line
@@ -19,7 +18,7 @@ const PrivateRoutes = () => {
         .post(`${process.env.REACT_APP_API_URL}/api/authCheck`)
         .then((response) => {
           setIsAuth(response.status === 200);
-          console.log(response.status)
+          console.log(response.status);
           setJwt(response.data.jwt as string);
           console.log("Authenticated");
         })
@@ -30,17 +29,21 @@ const PrivateRoutes = () => {
         .finally(() => {
           setIsLoading(false); // Add this line
         });
-    }
+    };
     const fetchData = async () => {
-      await checkAuthState()
-    }
-    fetchData()
+      await checkAuthState();
+    };
+    fetchData();
   }, []);
 
   if (isLoading) {
     return <div>Loading...</div>;
   } else {
-    return isAuth ? <Outlet context={{ jwt, setJwt } satisfies PrivateOutletContext} /> : <Navigate to="/" />;
+    return isAuth ? (
+      <Outlet context={{ jwt, setJwt } satisfies PrivateOutletContext} />
+    ) : (
+      <Navigate to="/" />
+    );
   }
 };
 
