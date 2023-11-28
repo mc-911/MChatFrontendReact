@@ -1,6 +1,5 @@
 import { Outlet, Navigate } from "react-router-dom";
 import axios from "axios";
-import useUserInfo from "./useIsAuth";
 import { useEffect, useState } from "react";
 export interface PrivateOutletContext {
   jwt: string;

@@ -73,6 +73,7 @@ function ChatHeader({ name, chatLogo }: ChatHeaderProps) {
       <img
         src={chatLogo}
         className="h-10 w-10 rounded-full object-cover"
+        alt="Chat Logo"
         onError={(event) => {
           // @ts-ignore
           event.target.src = defaultProfilePic;
@@ -83,7 +84,7 @@ function ChatHeader({ name, chatLogo }: ChatHeaderProps) {
   );
 }
 
-interface MessageInputComponent {
+interface MessageInputComponentProps {
   placeholder: string;
   sendMessageFunc: (message: string) => void;
 }
@@ -91,7 +92,7 @@ interface MessageInputComponent {
 function MessageInputComponent({
   placeholder,
   sendMessageFunc,
-}: MessageInputComponent) {
+}: MessageInputComponentProps) {
   const [message, setMessage] = useState("");
   const onChangeMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(e.target.value);
@@ -130,12 +131,18 @@ type Friend = {
   username: string;
   chat_id: string;
 };
-function Message({ senderName, senderId, timeSent, content }: MessageProps) {
+function MessageComponent({
+  senderName,
+  senderId,
+  timeSent,
+  content,
+}: MessageProps) {
   return (
     <div className="flex flex-row gap-3 m-3">
       <img
         src={`http://localhost:3000/api/users/${senderId}/profilePicture`}
         className="h-10 w-10 rounded-full object-cover"
+        alt="Sender Profile Picture"
         onError={(event) => {
           // @ts-ignore
           event.target.src = defaultProfilePic;
@@ -172,9 +179,6 @@ function PendingRequests({
   const [requests, setRequests] = useState<PendingRequest[]>([]);
   const [friendEmail, setFriendEmail] = useState("");
   const { userInfo } = useUserInfo();
-  useEffect(() => {
-    getPendingRequests();
-  }, []);
   const getPendingRequests = () => {
     axios
       .get(
@@ -187,6 +191,9 @@ function PendingRequests({
         console.log(error);
       });
   };
+  useEffect(() => {
+    getPendingRequests();
+  }, []);
   const acceptRequest = (friend_request_id: string) => {
     axios
       .post(
@@ -474,7 +481,7 @@ function ChatContent({ chat }: { chat: Chat }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [connection, setConnection] = useState<HubConnection>();
   const { userInfo } = useUserInfo();
-  const { jwt, setJwt } = useOutletContext<PrivateOutletContext>();
+  const { jwt } = useOutletContext<PrivateOutletContext>();
   const sendMessage = (message: string) => {
     if (connection) {
       const timestamp = Date.now();
@@ -492,13 +499,6 @@ function ChatContent({ chat }: { chat: Chat }) {
         });
     }
   };
-  React.useEffect(() => {
-    if (jwt != "") {
-      getMessages(chat.chatId).then(() => {
-        joinChat();
-      });
-    }
-  }, []);
   const joinChat = async () => {
     console.log(`Joining chat`);
     let connection = new HubConnectionBuilder()
@@ -546,11 +546,18 @@ function ChatContent({ chat }: { chat: Chat }) {
       },
     ]);
   };
+  React.useEffect(() => {
+    if (jwt !== "") {
+      getMessages(chat.chatId).then(() => {
+        joinChat();
+      });
+    }
+  }, []);
   const placeMessages = (messages: Message[]) => {
     console.log(messages);
     return messages.map((message) => {
       return (
-        <Message
+        <MessageComponent
           senderName={message.senderName}
           senderId={message.senderId}
           timeSent={message.timeSent}
@@ -609,7 +616,7 @@ function Settings({
   const [profilePic, setProfilePic] = useState<File>();
   const { userInfo } = useUserInfo();
   const [username, setUsername] = useState(userInfo.username);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage] = useState("");
   const fileInputRef = useRef() as MutableRefObject<HTMLInputElement>;
   const updateDetails = async () => {
     if (profilePic) {
@@ -627,7 +634,7 @@ function Settings({
           setImgRefreshValue(1);
         });
     }
-    if (username != userInfo.username) {
+    if (username !== userInfo.username) {
       axios
         .put(
           `${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/username`,
@@ -662,6 +669,7 @@ function Settings({
         <div className="w-full  flex-row flex justify-center">
           <img
             onClick={() => fileInputRef.current.click()}
+            alt="Profile Picture Selector"
             src={
               profilePic
                 ? URL.createObjectURL(profilePic)
@@ -714,17 +722,13 @@ function Home() {
     imageUrl: "",
   });
   const [convoSearchQuery, setConvoSearchQuery] = useState("");
+  console.log(convoSearchQuery);
   const [currentPage, setCurrentPage] = useState<Page>(Page.friends);
-  const { jwt, setJwt } = useOutletContext<PrivateOutletContext>();
+  const { jwt } = useOutletContext<PrivateOutletContext>();
   const { userInfo, setUserInfo } = useUserInfo();
   const [imgRefreshValue, setImgRefreshValue] = useState(0);
 
   const dialogRef = useRef<HTMLDialogElement>(null);
-  React.useEffect(() => {
-    if (jwt != "") {
-      getFriends();
-    }
-  }, [jwt]);
 
   const getFriends = async () => {
     await axios
@@ -739,6 +743,11 @@ function Home() {
       .catch((error) => {});
   };
 
+  React.useEffect(() => {
+    if (jwt !== "") {
+      getFriends();
+    }
+  }, [jwt]);
   const getFriendsList = () => {
     return friends.map((friend) => {
       return (
@@ -807,6 +816,7 @@ function Home() {
           <div className="flex flex-row gap-3">
             <img
               className="h-10 w-10 rounded-full object-cover"
+              alt="Profile Picture"
               src={`${process.env.REACT_APP_API_URL}/api/users/${
                 userInfo ? userInfo.userId : ""
               }/profilePicture`}

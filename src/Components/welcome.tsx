@@ -21,12 +21,6 @@ function Welcome() {
     login();
   };
 
-  useEffect(() => {
-    if (emailVerificationToken !== null) {
-      verifyToken(emailVerificationToken);
-    }
-  }, []);
-
   const verifyToken = (token: string) => {
     axios
       .post(`${process.env.REACT_APP_API_URL}/api/verify`, {
@@ -43,6 +37,13 @@ function Welcome() {
         );
       });
   };
+
+  useEffect(() => {
+    if (emailVerificationToken !== null) {
+      verifyToken(emailVerificationToken);
+    }
+  }, []);
+
   const login = () => {
     axios
       .post(`${process.env.REACT_APP_API_URL}/api/login`, {
@@ -50,7 +51,7 @@ function Welcome() {
         password: password,
       })
       .then((response) => {
-        if (response.status == 200) {
+        if (response.status === 200) {
           setUserInfo(response.data as userInfo);
           navigate("/home");
         }
