@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, MutableRefObject } from "react";
+import React, { useState, useEffect, useRef, MutableRefObject, useReducer } from "react";
 
 import { useOutletContext } from "react-router-dom";
 import axios from "axios";
@@ -138,7 +138,7 @@ function MessageComponent({
 }: MessageProps) {
   return (
     <div className="flex flex-row gap-3 m-3">
-      <img
+      <img key={Date.now()}
         src={`http://localhost:3000/api/users/${senderId}/profilePicture`}
         className="h-10 w-10 rounded-full object-cover"
         alt="Sender Profile"
@@ -440,8 +440,8 @@ function FriendsPage({
                 setFriendsPageSection(FriendsPageSection.AllFriends)
               }
               className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 rounded-md ${friendsPageSection === FriendsPageSection.AllFriends
-                  ? "bg-slate-50/50 text-gray-50"
-                  : ""
+                ? "bg-slate-50/50 text-gray-50"
+                : ""
                 }`}
             >
               All
@@ -451,8 +451,8 @@ function FriendsPage({
                 setFriendsPageSection(FriendsPageSection.PendingRequests)
               }
               className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 rounded-md ${friendsPageSection === FriendsPageSection.PendingRequests
-                  ? "bg-slate-50/50 text-gray-50"
-                  : ""
+                ? "bg-slate-50/50 text-gray-50"
+                : ""
                 }`}
             >
               Pending
@@ -603,11 +603,11 @@ function ChatContent({ chat }: { chat: Chat }) {
 }
 function Settings({
   dialogRef,
-  setImgRefreshValue,
+  imgRefreshFunc,
   setUserInfo,
 }: {
   dialogRef: React.RefObject<HTMLDialogElement>;
-  setImgRefreshValue: React.Dispatch<React.SetStateAction<number>>;
+  imgRefreshFunc: React.DispatchWithoutAction;
   setUserInfo: (newUserInfo: typeof userInfo) => void;
 }) {
   const [profilePic, setProfilePic] = useState<File>();
@@ -628,7 +628,8 @@ function Settings({
           console.log(error);
         })
         .then((response) => {
-          setImgRefreshValue(1);
+          console.log("Refreshing image")
+          imgRefreshFunc();
         });
     }
     if (username !== userInfo.username) {
@@ -655,7 +656,7 @@ function Settings({
     >
       <div className=" p-5 flex flex-col gap-3">
         <div className="flex-row flex justify-between ">
-          <div className="Settigns">Settings</div>
+          <div className="">Settings</div>
           <FontAwesomeIcon
             size="xl"
             icon={icon({ name: "xmark" })}
@@ -726,7 +727,7 @@ function Home() {
   const [currentPage, setCurrentPage] = useState<Page>(Page.friends);
   const { jwt } = useOutletContext<PrivateOutletContext>();
   const { userInfo, setUserInfo } = useUserInfo();
-  const [imgRefreshValue, setImgRefreshValue] = useState(0);
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
 
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -796,8 +797,8 @@ function Home() {
           <div
             onClick={() => setCurrentPage(Page.friends)}
             className={`flex flex-row  gap-4 items-center p-1 pl-3 mb-4 m-1 h-12 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${currentPage === Page.friends
-                ? "dark:bg-slate-50/50 dark:text-gray-50"
-                : "dark:bg-background"
+              ? "dark:bg-slate-50/50 dark:text-gray-50"
+              : "dark:bg-background"
               }`}
           >
             <FontAwesomeIcon
@@ -810,10 +811,9 @@ function Home() {
           <div style={{ textAlign: "center" }}>Direct Messages</div>
           <>{getFriendsList()}</>
         </div>
-        <div className="hidden">{imgRefreshValue}</div>
         <div className="flex flew-row gap-3 p-3 bg-slate-900">
           <div className="flex flex-row gap-3">
-            <img
+            <img key={Date.now()}
               className="h-10 w-10 rounded-full object-cover"
               alt="Profile"
               src={`${process.env.REACT_APP_API_URL}/api/users/${userInfo ? userInfo.userId : ""
@@ -843,7 +843,7 @@ function Home() {
         {getCurrentPage()}
         <Settings
           dialogRef={dialogRef}
-          setImgRefreshValue={setImgRefreshValue}
+          imgRefreshFunc={forceUpdate}
           setUserInfo={setUserInfo}
         />
       </div>
