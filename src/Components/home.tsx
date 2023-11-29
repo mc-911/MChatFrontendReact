@@ -538,7 +538,7 @@ function ChatContent({ chat }: { chat: Chat }) {
       {
         senderName: username,
         senderId: userId,
-        timeSent: new Date(Date.parse(time)),
+        timeSent: new Date(parseInt(time)),
         content: content,
       },
     ]);
