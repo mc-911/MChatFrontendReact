@@ -46,9 +46,8 @@ function FriendsSectionItem({
         setChat({ name, chatId, imageUrl: profilePic });
         setCurrentPage(Page.chat);
       }}
-      className={`flex flex-row  gap-4 items-center h-12 p-1 pl-3 m-1 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${
-        active ? "dark:bg-slate-50/50 dark:text-gray-50" : "dark:bg-background"
-      } `}
+      className={`flex flex-row  gap-4 items-center h-12 p-1 pl-3 m-1 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${active ? "dark:bg-slate-50/50 dark:text-gray-50" : "dark:bg-background"
+        } `}
     >
       <img
         src={profilePic}
@@ -332,7 +331,7 @@ function AllFriends({
         console.log(friends, "hello");
         refreshFriendsFunc();
       })
-      .catch((error) => {});
+      .catch((error) => { });
   };
 
   const removeFriend = (friend_id: string) => {
@@ -440,11 +439,10 @@ function FriendsPage({
               onClick={() =>
                 setFriendsPageSection(FriendsPageSection.AllFriends)
               }
-              className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 rounded-md ${
-                friendsPageSection === FriendsPageSection.AllFriends
+              className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 rounded-md ${friendsPageSection === FriendsPageSection.AllFriends
                   ? "bg-slate-50/50 text-gray-50"
                   : ""
-              }`}
+                }`}
             >
               All
             </div>
@@ -452,11 +450,10 @@ function FriendsPage({
               onClick={() =>
                 setFriendsPageSection(FriendsPageSection.PendingRequests)
               }
-              className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 rounded-md ${
-                friendsPageSection === FriendsPageSection.PendingRequests
+              className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 rounded-md ${friendsPageSection === FriendsPageSection.PendingRequests
                   ? "bg-slate-50/50 text-gray-50"
                   : ""
-              }`}
+                }`}
             >
               Pending
             </div>
@@ -583,7 +580,7 @@ function ChatContent({ chat }: { chat: Chat }) {
         console.log(newMessages);
         setMessages(newMessages);
       })
-      .catch((error) => {});
+      .catch((error) => { });
   };
   return (
     <>
@@ -673,10 +670,13 @@ function Settings({
             src={
               profilePic
                 ? URL.createObjectURL(profilePic)
-                : `${process.env.REACT_APP_API_URL}/api/users/${
-                    userInfo ? userInfo.userId : ""
-                  }/profilePicture`
+                : `${process.env.REACT_APP_API_URL}/api/users/${userInfo ? userInfo.userId : ""
+                }/profilePicture`
             }
+            onError={(event) => {
+              // @ts-ignore
+              event.target.src = defaultProfilePic;
+            }}
             className="h-44 w-44 rounded-full object-cover"
           />
           <input
@@ -740,7 +740,7 @@ function Home() {
         setFriends(friends);
         console.log(friends, "hello");
       })
-      .catch((error) => {});
+      .catch((error) => { });
   };
 
   React.useEffect(() => {
@@ -795,11 +795,10 @@ function Home() {
         <div className="grow overflow-auto">
           <div
             onClick={() => setCurrentPage(Page.friends)}
-            className={`flex flex-row  gap-4 items-center p-1 pl-3 mb-4 m-1 h-12 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${
-              currentPage === Page.friends
+            className={`flex flex-row  gap-4 items-center p-1 pl-3 mb-4 m-1 h-12 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${currentPage === Page.friends
                 ? "dark:bg-slate-50/50 dark:text-gray-50"
                 : "dark:bg-background"
-            }`}
+              }`}
           >
             <FontAwesomeIcon
               size="xl"
@@ -817,9 +816,8 @@ function Home() {
             <img
               className="h-10 w-10 rounded-full object-cover"
               alt="Profile"
-              src={`${process.env.REACT_APP_API_URL}/api/users/${
-                userInfo ? userInfo.userId : ""
-              }/profilePicture`}
+              src={`${process.env.REACT_APP_API_URL}/api/users/${userInfo ? userInfo.userId : ""
+                }/profilePicture`}
               onError={(event) => {
                 // @ts-ignore
                 event.target.src = defaultProfilePic;
