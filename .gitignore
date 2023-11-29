@@ -23,7 +23,7 @@ yarn-debug.log*
 yarn-error.log*
 .env
 
-/public
+/public/static
 
 # Logs
 logs
