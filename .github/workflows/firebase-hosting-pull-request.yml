@@ -19,6 +19,8 @@ jobs:
         run: |
           touch .env
           echo REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL}} >> .env
+                  echo "REACT_APP_WEBSOCKETS_URL=${{ secrets.REACT_APP_WEBSOCKETS_URL }}" >> .env
+
       - run: npm ci && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
