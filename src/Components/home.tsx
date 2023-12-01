@@ -201,6 +201,7 @@ function PendingRequests({
 }) {
   const [requests, setRequests] = useState<PendingRequest[]>([]);
   const [friendEmail, setFriendEmail] = useState("");
+  const [responseMessage, setResponseMessage] = useState("");
   const { userInfo } = useUserInfo();
   const getPendingRequests = () => {
     axios
@@ -254,10 +255,25 @@ function PendingRequests({
       )
       .then((response) => {
         console.log("Request sent");
+        setResponseMessage(`Sent request to ${response.data.username}`)
         getPendingRequests();
         setFriendEmail("");
       })
       .catch((error) => {
+        switch (error.response.status) {
+          case 400:
+            setResponseMessage("Invalid Format")
+            break;
+          case 404:
+            setResponseMessage("No user found with that email address")
+            break;
+          case 403:
+            setResponseMessage(error.response.data.error)
+            break;
+          default:
+            setResponseMessage("Unknown error occurred");
+            break;
+        }
         console.log(error);
       });
   };
@@ -310,13 +326,27 @@ function PendingRequests({
             onChange={(e) => setFriendEmail(e.target.value)}
             onKeyDown={(event) => {
               if (event.key === "Enter") {
-                sendFriendRequest(friendEmail);
+                if (friendEmail.length > 0) {
+
+                  sendFriendRequest(friendEmail);
+                } else {
+                  setResponseMessage("Please supply an email address")
+                }
               }
             }}
           />
+          <div className="mt-4">{responseMessage}</div>
           <button
             className="bg-secondary py-3 px-2 absolute right-7 top-5 rounded-md"
-            onClick={() => sendFriendRequest(friendEmail)}
+            onClick={() => {
+              if (friendEmail.length > 0) {
+
+                sendFriendRequest(friendEmail);
+              } else {
+                setResponseMessage("Please supply an email address")
+              }
+            }
+            }
           >
             Send Friend Request
           </button>
