@@ -863,7 +863,7 @@ function Home() {
       id="bodyDiv"
       className="flex-row flex h-screen bg-[#EBF7FF] dark:bg-[#000C14]  dark:text-gray-200"
     >
-      <div className={`bg-background w-full h-full md:w-72 flex  ${sidebarActive ? 'absolute' : 'hidden'} md:static flex-col min-w-[18rem] `}>
+      <div className={`bg-background w-screen h-screen md:w-72 flex  ${sidebarActive ? 'absolute' : 'max-sm:hidden'} md:static flex-col min-w-[18rem] z-10`}>
 
         <input
           className="rounded-md dark:bg-gray-800 m-2 mb-4 h-12 md:h-8 pl-3"
@@ -889,7 +889,7 @@ function Home() {
           <div style={{ textAlign: "center" }}>Direct Messages</div>
           <>{getFriendsList()}</>
         </div>
-        <div className="flex flew-row gap-3 p-3 bg-slate-900">
+        <div className="flex flew-row gap-3 p-3 bg-slate-900 ">
           <div className="flex flex-row gap-3">
             <img key={Date.now()}
               className="h-10 w-10 rounded-full object-cover"
@@ -917,7 +917,7 @@ function Home() {
           </div>
         </div>
       </div>
-      <div className="flex flex-col flex-grow">
+      <div className="flex flex-col flex-grow w-screen h-screen absolute md:static z-0">
         {getCurrentPage()}
         <Settings
           dialogRef={dialogRef}
