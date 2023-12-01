@@ -139,7 +139,7 @@ function MessageComponent({
   return (
     <div className="flex flex-row gap-3 m-3">
       <img key={Date.now()}
-        src={`http://localhost:3000/api/users/${senderId}/profilePicture`}
+        src={`${process.env.REACT_APP_API_URL}/api/users/${senderId}/profilePicture`}
         className="h-10 w-10 rounded-full object-cover"
         alt="Sender Profile"
         onError={(event) => {
@@ -243,7 +243,7 @@ function PendingRequests({
         <div className="flex flex-row border-t-2 border-gray-400">
           <div className="flex flex-row gap-3 items-center m-3">
             <img
-              src={`http://localhost:3000/api/users/${request.user_id}/profilePicture`}
+              src={`${process.env.REACT_APP_API_URL}/api/users/${request.user_id}/profilePicture`}
               alt="Uh Oh"
               className="w-8 rounded-full"
               onError={(event) => {
@@ -354,7 +354,7 @@ function AllFriends({
         <div className="flex flex-row border-t-2 border-gray-400">
           <div className="flex flex-row gap-3 items-center m-3">
             <img
-              src={`http://localhost:3000/api/users/${friend.user_id}/profilePicture`}
+              src={`${process.env.REACT_APP_API_URL}/api/users/${friend.user_id}/profilePicture`}
               alt="Uh Oh"
               className="w-8 h-8 object-cover rounded-full"
               onError={(event) => {
@@ -370,7 +370,7 @@ function AllFriends({
                 setChat({
                   name: friend.username,
                   chatId: friend.chat_id,
-                  imageUrl: `http://localhost:3000/api/users/${friend.user_id}/profilePicture`,
+                  imageUrl: `${process.env.REACT_APP_API_URL}/api/users/${friend.user_id}/profilePicture`,
                 });
                 setCurrentPage(Page.chat);
               }}
@@ -503,6 +503,7 @@ function ChatContent({ chat }: { chat: Chat }) {
         accessTokenFactory() {
           return jwt;
         },
+        withCredentials: true
       })
       .configureLogging(LogLevel.Information)
       .build();
@@ -758,7 +759,7 @@ function Home() {
           setChat={setChat}
           active={chat.chatId === friend.chat_id && currentPage === Page.chat}
           name={friend.username}
-          profilePic={`http://localhost:3000/api/users/${friend.user_id}/profilePicture`}
+          profilePic={`${process.env.REACT_APP_API_URL}/api/users/${friend.user_id}/profilePicture`}
           chatId={friend.chat_id}
         />
       );
