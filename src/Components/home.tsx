@@ -46,7 +46,7 @@ function FriendsSectionItem({
         setChat({ name, chatId, imageUrl: profilePic });
         setCurrentPage(Page.chat);
       }}
-      className={`flex flex-row  gap-4 items-center h-12 p-1 pl-3 m-1 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${active ? "dark:bg-slate-50/50 dark:text-gray-50" : "dark:bg-background"
+      className={`flex flex-row  gap-4 items-center h-12 p-1 pl-3 m-1 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${active ? "md:dark:bg-slate-50/50 md:dark:text-gray-50" : "md:dark:bg-background"
         } `}
     >
       <img
@@ -482,8 +482,12 @@ function FriendsPage({
   };
   return (
     <>
-      <div className="flex flex-row flex-nowrap gap-3 items-center py-3">
-        <div className="flex flex-row flex-nowrap pl-5 p-2 pr-3 items-center gap-3 border-r-2 border-r-gray-400">
+      <div className="flex flex-row flex-nowrap gap-3 items-center py-3 pl-4">
+        <div className="flex-row flex-nowrap p-2 pr-5 items-center gap-3 border-r-2 md:hidden flex border-r-gray-400">
+          <FontAwesomeIcon size="xl" icon={icon({ name: "bars" })} />
+        </div>
+        <div className="flex flex-row flex-nowrap  p-2 pr-3 items-center gap-3 border-r-2 border-r-gray-400">
+
           <FontAwesomeIcon size="xl" icon={icon({ name: "user-group" })} />
           <div>Friends</div>
         </div>
@@ -777,6 +781,7 @@ function Home() {
     imageUrl: "",
   });
   const [convoSearchQuery, setConvoSearchQuery] = useState("");
+  const [sidebarActive, setSidebarActive] = useState(true);
   console.log(convoSearchQuery);
   const [currentPage, setCurrentPage] = useState<Page>(Page.friends);
   const { jwt } = useOutletContext<PrivateOutletContext>();
@@ -840,7 +845,8 @@ function Home() {
       id="bodyDiv"
       className="flex-row flex h-screen bg-[#EBF7FF] dark:bg-[#000C14]  dark:text-gray-200"
     >
-      <div className="bg-background w-72 flex flex-col min-w-[18rem]">
+      <div className={`bg-background w-full h-full md:w-72 flex  ${sidebarActive ? 'absolute' : 'hidden'} md:static flex-col min-w-[18rem] `}>
+
         <input
           className="rounded-md dark:bg-gray-800 m-2 mb-4 h-8 pl-3"
           type="text"
@@ -851,8 +857,8 @@ function Home() {
           <div
             onClick={() => setCurrentPage(Page.friends)}
             className={`flex flex-row  gap-4 items-center p-1 pl-3 mb-4 m-1 h-12 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${currentPage === Page.friends
-              ? "dark:bg-slate-50/50 dark:text-gray-50"
-              : "dark:bg-background"
+              ? "md:dark:bg-slate-50/50 md:dark:text-gray-50"
+              : "md:dark:bg-background"
               }`}
           >
             <FontAwesomeIcon
