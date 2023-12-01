@@ -797,7 +797,7 @@ function Home() {
     chatId: "",
     imageUrl: "",
   });
-  const [convoSearchQuery, setConvoSearchQuery] = useState("");
+  const [, setConvoSearchQuery] = useState("");
   const [sidebarActive, setSidebarActive] = useState(true);
   const [currentPage, setCurrentPage] = useState<Page>(Page.friends);
   const { jwt } = useOutletContext<PrivateOutletContext>();
@@ -866,7 +866,7 @@ function Home() {
       <div className={`bg-background w-full h-full md:w-72 flex  ${sidebarActive ? 'absolute' : 'hidden'} md:static flex-col min-w-[18rem] `}>
 
         <input
-          className="rounded-md dark:bg-gray-800 m-2 mb-4 h-8 pl-3"
+          className="rounded-md dark:bg-gray-800 m-2 mb-4 h-12 md:h-8 pl-3"
           type="text"
           placeholder="Search for a conversation"
           onChange={(e) => setConvoSearchQuery(e.target.value)}
