@@ -727,7 +727,7 @@ function Settings({
   return (
     <dialog
       ref={dialogRef}
-      className="absolute h-[25rem] w-5/6 sm:w-[30rem]  border-2 border-gray-200 rounded-md m-auto top-1/2 bottom-1/2 dark:bg-gray-800 dark:text-gray-200"
+      className="absolute h-[25rem] w-5/6 sm:w-[30rem]  border-2 border-gray-200 rounded-md m-auto top-1/2 bottom-1/2 dark:bg-gray-800 dark:text-gray-200 z-10"
     >
       <div className=" p-5 flex flex-col gap-3">
         <div className="flex-row flex justify-between ">
@@ -917,7 +917,7 @@ function Home() {
           </div>
         </div>
       </div>
-      <div className="flex flex-col flex-grow w-screen h-screen absolute md:static z-0">
+      <div className="flex flex-col flex-grow w-screen h-screen absolute md:static ">
         {getCurrentPage()}
         <Settings
           dialogRef={dialogRef}
