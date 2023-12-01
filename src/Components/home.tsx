@@ -502,8 +502,7 @@ function ChatContent({ chat }: { chat: Chat }) {
       .withUrl(`${process.env.REACT_APP_WEBSOCKETS_URL}/chat`, {
         accessTokenFactory() {
           return jwt;
-        },
-        withCredentials: true
+        }
       })
       .configureLogging(LogLevel.Information)
       .build();
