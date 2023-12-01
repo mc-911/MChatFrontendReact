@@ -48,8 +48,8 @@ function Welcome() {
   const login = () => {
     axios
       .post(`${process.env.REACT_APP_API_URL}/api/login`, {
-        email: email,
-        password: password,
+        email: email.trimEnd(),
+        password: password.trimEnd(),
       })
       .then((response) => {
         if (response.status === 200) {

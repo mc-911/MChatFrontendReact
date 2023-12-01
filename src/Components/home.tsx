@@ -136,6 +136,35 @@ function MessageComponent({
   timeSent,
   content,
 }: MessageProps) {
+  const time = () => {
+    const today = new Date();
+    const yesterday = new Date()
+    yesterday.setDate(today.getDate() - 1);
+    if (today.getFullYear() === timeSent.getFullYear() &&
+      today.getMonth() === timeSent.getMonth() &&
+      today.getDate() === timeSent.getDate()) {
+      return "Today at " + timeSent.toLocaleTimeString("en-nz", {
+        hour: "numeric",
+        minute: '2-digit',
+      })
+    } else if (today.getFullYear() === timeSent.getFullYear() &&
+      yesterday.getMonth() === timeSent.getMonth() &&
+      yesterday.getDate() === timeSent.getDate()) {
+      return "Yesterday at " + timeSent.toLocaleTimeString("en-nz", {
+        hour: "numeric",
+        minute: '2-digit',
+      })
+
+    }
+    else {
+      return timeSent.toLocaleDateString("en-nz") + " " + timeSent.toLocaleTimeString("en-nz", {
+        hour: "numeric",
+        minute: '2-digit',
+      })
+
+    }
+  }
+
   return (
     <div className="flex flex-row gap-3 m-3">
       <img key={Date.now()}
@@ -151,12 +180,7 @@ function MessageComponent({
         <div className="flex flow-row gap-3 items-end">
           <div className="font-semibold">{senderName}</div>
           <div className="text-sm text-gray-400">
-            {timeSent.toLocaleDateString("en-us", {
-              weekday: "long",
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
+            {time()}
           </div>
         </div>
         <div className="grow">{content}</div>
