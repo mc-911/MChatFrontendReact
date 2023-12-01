@@ -30,6 +30,7 @@ interface FriendsSectionItemProps {
   active: boolean;
   setChat: React.Dispatch<React.SetStateAction<Chat>>;
   setCurrentPage: React.Dispatch<React.SetStateAction<Page>>;
+  setSidebarActive: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 function FriendsSectionItem({
@@ -39,10 +40,12 @@ function FriendsSectionItem({
   active,
   setChat,
   setCurrentPage,
+  setSidebarActive
 }: FriendsSectionItemProps) {
   return (
     <div
       onClick={() => {
+        setSidebarActive(false);
         setChat({ name, chatId, imageUrl: profilePic });
         setCurrentPage(Page.chat);
       }}
@@ -457,11 +460,13 @@ function FriendsPage({
   setChat,
   setCurrentPage,
   refreshFriendsFunc,
+  setSidebarActive
 }: {
   friends: Friend[];
   setChat: React.Dispatch<React.SetStateAction<Chat>>;
   setCurrentPage: React.Dispatch<React.SetStateAction<Page>>;
   refreshFriendsFunc: () => Promise<void>;
+  setSidebarActive: React.Dispatch<React.SetStateAction<boolean>>
 }) {
   const [friendsPageSection, setFriendsPageSection] =
     useState<FriendsPageSection>(FriendsPageSection.AllFriends);
@@ -483,13 +488,18 @@ function FriendsPage({
   return (
     <>
       <div className="flex flex-row flex-nowrap gap-3 items-center py-3 pl-4">
-        <div className="flex-row flex-nowrap p-2 pr-5 items-center gap-3 border-r-2 md:hidden flex border-r-gray-400">
-          <FontAwesomeIcon size="xl" icon={icon({ name: "bars" })} />
-        </div>
-        <div className="flex flex-row flex-nowrap  p-2 pr-3 items-center gap-3 border-r-2 border-r-gray-400">
+        <div className="flex flex-row items-center">
+          <FontAwesomeIcon
+            onClick={() => setSidebarActive(true)}
+            size="2xl"
+            icon={icon({ name: "arrow-left" })}
+            className="text-gray-400 hover:text-gray-100 md:hidden active:text-gray-50  ml-1 mr-2"
+          />
+          <div className="flex flex-row flex-nowrap  p-2 pr-3 items-center gap-3 border-r-2 border-r-gray-400">
 
-          <FontAwesomeIcon size="xl" icon={icon({ name: "user-group" })} />
-          <div>Friends</div>
+            <FontAwesomeIcon size="xl" icon={icon({ name: "user-group" })} />
+            <div>Friends</div>
+          </div>
         </div>
         <div className="flex flex-row items-center grow justify-between pr-3">
           <div className="flex flex-row gap-3">
@@ -532,7 +542,7 @@ function FriendsPage({
     </>
   );
 }
-function ChatContent({ chat }: { chat: Chat }) {
+function ChatContent({ chat, setSidebarActive }: { chat: Chat, setSidebarActive: React.Dispatch<React.SetStateAction<boolean>> }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [connection, setConnection] = useState<HubConnection>();
   const { userInfo } = useUserInfo();
@@ -641,8 +651,15 @@ function ChatContent({ chat }: { chat: Chat }) {
       .catch((error) => { });
   };
   return (
-    <>
+    <> <div className="flex flex-row items-center">
+      <FontAwesomeIcon
+        onClick={() => setSidebarActive(true)}
+        size="2xl"
+        icon={icon({ name: "arrow-left" })}
+        className="text-gray-400 hover:text-gray-100 md:hidden active:text-gray-50 ml-4 mr-2"
+      />
       <ChatHeader name={chat.name} chatLogo={chat.imageUrl} />
+    </div>
       <div className="grow bg-secondary overflow-auto scroll">
         <>
           {messages ? (
@@ -782,7 +799,6 @@ function Home() {
   });
   const [convoSearchQuery, setConvoSearchQuery] = useState("");
   const [sidebarActive, setSidebarActive] = useState(true);
-  console.log(convoSearchQuery);
   const [currentPage, setCurrentPage] = useState<Page>(Page.friends);
   const { jwt } = useOutletContext<PrivateOutletContext>();
   const { userInfo, setUserInfo } = useUserInfo();
@@ -819,6 +835,7 @@ function Home() {
           name={friend.username}
           profilePic={`${process.env.REACT_APP_API_URL}/api/users/${friend.user_id}/profilePicture`}
           chatId={friend.chat_id}
+          setSidebarActive={setSidebarActive}
         />
       );
     });
@@ -833,10 +850,11 @@ function Home() {
             setChat={setChat}
             friends={friends}
             refreshFriendsFunc={getFriends}
+            setSidebarActive={setSidebarActive}
           />
         );
       case Page.chat:
-        return <ChatContent chat={chat} />;
+        return <ChatContent chat={chat} setSidebarActive={setSidebarActive} />;
     }
   };
   console.log(userInfo);
@@ -855,7 +873,7 @@ function Home() {
         />
         <div className="grow overflow-auto">
           <div
-            onClick={() => setCurrentPage(Page.friends)}
+            onClick={() => { setSidebarActive(false); setCurrentPage(Page.friends) }}
             className={`flex flex-row  gap-4 items-center p-1 pl-3 mb-4 m-1 h-12 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${currentPage === Page.friends
               ? "md:dark:bg-slate-50/50 md:dark:text-gray-50"
               : "md:dark:bg-background"
