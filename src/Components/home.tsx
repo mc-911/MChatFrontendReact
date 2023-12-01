@@ -487,21 +487,21 @@ function FriendsPage({
   };
   return (
     <>
-      <div className="flex flex-row flex-nowrap gap-3 items-center py-3 pl-4">
+      <div className="flex flex-row flex-nowrap gap-3 items-center py-3 px-4">
         <div className="flex flex-row items-center">
           <FontAwesomeIcon
             onClick={() => setSidebarActive(true)}
             size="2xl"
             icon={icon({ name: "arrow-left" })}
-            className="text-gray-400 hover:text-gray-100 md:hidden active:text-gray-50  ml-1 mr-2"
+            className="text-gray-400 hover:text-gray-100 md:hidden active:text-gray-50   mr-2"
           />
-          <div className="flex flex-row flex-nowrap  p-2 pr-3 items-center gap-3 border-r-2 border-r-gray-400">
+          <div className="flex flex-row flex-nowrap  p-2  items-center gap-3 border-r-2 border-r-gray-400">
 
             <FontAwesomeIcon size="xl" icon={icon({ name: "user-group" })} />
             <div>Friends</div>
           </div>
         </div>
-        <div className="flex flex-row items-center grow justify-between pr-3">
+        <div className="flex flex-row items-center grow justify-between">
           <div className="flex flex-row gap-3">
             <div
               onClick={() =>
@@ -527,7 +527,7 @@ function FriendsPage({
             </div>
           </div>
           <button
-            className="bg-slate-300 text-gray-950 font-semibold p-2 rounded-md"
+            className="bg-slate-300 text-gray-950 font-semibold p-3 rounded-md text-xs"
             onClick={() =>
               setFriendsPageSection(FriendsPageSection.PendingRequests)
             }
@@ -861,7 +861,7 @@ function Home() {
   return (
     <div
       id="bodyDiv"
-      className="flex-row flex h-screen bg-[#EBF7FF] dark:bg-[#000C14]  dark:text-gray-200"
+      className="flex-row flex h-screen w-screen bg-[#EBF7FF] dark:bg-[#000C14]  dark:text-gray-200"
     >
       <div className={`bg-background w-screen h-screen md:w-72 flex  ${sidebarActive ? 'absolute' : 'max-sm:hidden'} md:static flex-col min-w-[18rem] z-10`}>
 
