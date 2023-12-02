@@ -121,6 +121,7 @@ interface MessageProps {
   senderId: string;
   timeSent: Date;
   content: string;
+  lastMessageRef: MutableRefObject<HTMLDivElement>;
 }
 type Message = {
   senderName: string;
@@ -138,6 +139,7 @@ function MessageComponent({
   senderId,
   timeSent,
   content,
+  lastMessageRef
 }: MessageProps) {
   const time = () => {
     const today = new Date();
@@ -168,8 +170,9 @@ function MessageComponent({
     }
   }
 
+  console.log(lastMessageRef)
   return (
-    <div className="flex flex-row gap-3 m-3">
+    <div className="flex flex-row gap-3 m-3 active:border-0" tabIndex={0} ref={lastMessageRef}>
       <img key={Date.now()}
         src={`${process.env.REACT_APP_API_URL}/api/users/${senderId}/profilePicture`}
         className="h-10 w-10 rounded-full object-cover"
@@ -324,7 +327,7 @@ function PendingRequests({
         <div className="mx-3 relative">
           <input
             type="text"
-            className="rounded-md dark:bg-gray-800 h-14 pl-3 mt-4 w-full min-w-min pr-3"
+            className="rounded-md dark:bg-gray-800 h-14 pl-3 mt-4 w-full min-w-min pr-3 max-sm:text-xs"
             placeholder="You can add friends with their email address"
             onChange={(e) => setFriendEmail(e.target.value)}
             onKeyDown={(event) => {
@@ -340,7 +343,7 @@ function PendingRequests({
           />
           <div className="mt-4">{responseMessage}</div>
           <button
-            className="bg-secondary py-3 px-2 absolute right-7 top-5 rounded-md"
+            className="bg-secondary py-3 px-6 absolute right-2 top-5 rounded-md"
             onClick={() => {
               if (friendEmail.length > 0) {
 
@@ -351,7 +354,7 @@ function PendingRequests({
             }
             }
           >
-            Send Friend Request
+            Send
           </button>
         </div>
         <div className="p-3">Pending Requests - {requests.length}</div>
@@ -544,9 +547,15 @@ function FriendsPage({
 }
 function ChatContent({ chat, setSidebarActive }: { chat: Chat, setSidebarActive: React.Dispatch<React.SetStateAction<boolean>> }) {
   const [messages, setMessages] = useState<Message[]>([]);
+  const lastMessageRef = useRef() as MutableRefObject<HTMLDivElement>;
   const [connection, setConnection] = useState<HubConnection>();
   const { userInfo } = useUserInfo();
   const { jwt } = useOutletContext<PrivateOutletContext>();
+  useEffect(() => {
+    if (lastMessageRef.current) {
+      lastMessageRef.current.focus()
+    }
+  }, [messages.length]);
   const sendMessage = (message: string) => {
     if (connection) {
       const timestamp = Date.now();
@@ -627,6 +636,7 @@ function ChatContent({ chat, setSidebarActive }: { chat: Chat, setSidebarActive:
           senderId={message.senderId}
           timeSent={message.timeSent}
           content={message.content}
+          lastMessageRef={lastMessageRef}
         />
       );
     });

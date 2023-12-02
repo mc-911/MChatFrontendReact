@@ -16,6 +16,10 @@
         scrollbar-width: thin;
     }
 
+    *:active {
+        border-width: 0px;
+    }
+
     /* a {
         color: black;
     }
