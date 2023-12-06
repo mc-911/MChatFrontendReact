@@ -189,7 +189,7 @@ function MessageComponent({
             {time()}
           </div>
         </div>
-        <div className="grow">{content}</div>
+        <div className="grow max-w-full">{content}</div>
       </div>
     </div>
   );
@@ -626,7 +626,7 @@ function ChatContent({ chat, setSidebarActive }: { chat: Chat, setSidebarActive:
         joinChat();
       });
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [chat.chatId]); // eslint-disable-line react-hooks/exhaustive-deps
   const placeMessages = (messages: Message[]) => {
     console.log(messages);
     return messages.map((message) => {
@@ -670,7 +670,7 @@ function ChatContent({ chat, setSidebarActive }: { chat: Chat, setSidebarActive:
       />
       <ChatHeader name={chat.name} chatLogo={chat.imageUrl} />
     </div>
-      <div className="grow bg-secondary overflow-auto scroll">
+      <div className="grow bg-secondary overflow-auto scroll px-3">
         <>
           {messages ? (
             placeMessages(messages)
