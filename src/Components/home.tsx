@@ -13,6 +13,7 @@ import { PrivateOutletContext } from "./protectedRoute";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core/import.macro";
 import useUserInfo from "./useIsAuth";
+import { error } from "console";
 enum Page {
   friends,
   chat,
@@ -49,7 +50,7 @@ function FriendsSectionItem({
         setChat({ name, chatId, imageUrl: profilePic });
         setCurrentPage(Page.chat);
       }}
-      className={`flex flex-row  gap-4 items-center h-12 p-1 pl-3 m-1 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${active ? "md:dark:bg-slate-50/50 md:dark:text-gray-50" : "md:dark:bg-background"
+      className={`flex flex-row  gap-4 items-center h-12 p-1 pl-3 m-1 rounded-md select-none hover:bg-slate-50/50 active:text-gray-50 ${active ? "md:dark:bg-slate-50/50 md:dark:text-gray-50" : "md:dark:bg-background"
         } `}
     >
       <img
@@ -172,7 +173,7 @@ function MessageComponent({
 
   console.log(lastMessageRef)
   return (
-    <div className="flex flex-row gap-3 m-3 active:border-0" tabIndex={0} ref={lastMessageRef}>
+    <div className="flex flex-row gap-3 m-3 active:border-0" tabIndex={0} ref={lastMessageRef} key={timeSent.getTime()}>
       <img key={Date.now()}
         src={`${process.env.REACT_APP_API_URL}/api/users/${senderId}/profilePicture`}
         className="h-10 w-10 rounded-full object-cover"
@@ -209,6 +210,9 @@ function PendingRequests({
   const [friendEmail, setFriendEmail] = useState("");
   const [responseMessage, setResponseMessage] = useState("");
   const { userInfo } = useUserInfo();
+  const [friendRequestConnection, setFriendRequestConnection] = useState<HubConnection>();
+  const { jwt } = useOutletContext<PrivateOutletContext>();
+
   const getPendingRequests = () => {
     axios
       .get(
@@ -223,8 +227,49 @@ function PendingRequests({
   };
   useEffect(() => {
     getPendingRequests();
+    connect()
+
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  const acceptRequest = (friend_request_id: string) => {
+  const connect = async () => {
+    console.log("Connecting")
+    let connection = new HubConnectionBuilder()
+      .withUrl(`${process.env.REACT_APP_WEBSOCKETS_URL}/notification`, {
+        accessTokenFactory() {
+          return jwt;
+        }
+      })
+      .configureLogging(LogLevel.Information)
+      .build();
+    await connection.start().then(() => connection.invoke("GoOnline", {
+      Username: userInfo.username,
+      ChatId: "0",
+      UserId: userInfo.userId,
+    })).catch((error) => {
+      console.log(error)
+    })
+    connection.on("ReceiveFriendRequest", receiveFriendRequest)
+    connection.on("BeNotifiedOfAcception", (friend_request_id: string) => {
+      refreshFriendsFunc();
+      setRequests(requests.filter((request) => request.friend_request_id !== friend_request_id))
+    })
+    connection.on("BeNotifiedOfDenial", (friend_request_id: string) => {
+      setRequests(requests.filter((request) => request.friend_request_id !== friend_request_id))
+    })
+    setFriendRequestConnection(connection);
+  }
+  const receiveFriendRequest = (friend_request_id: string, requested: string, user_id: string, username: string) => {
+    console.log({ friend_request_id, user_id, username, requested })
+    setRequests((prevRequests) => [
+      ...prevRequests,
+      {
+        friend_request_id: friend_request_id,
+        requested: requested,
+        user_id: user_id,
+        username: username,
+      },
+    ]);
+  }
+  const acceptRequest = (friend_request_id: string, requester_id: string) => {
     axios
       .post(
         `${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/accept_request`,
@@ -234,12 +279,15 @@ function PendingRequests({
         console.log("Request accepted refresh");
         getPendingRequests();
         refreshFriendsFunc();
+        if (friendRequestConnection?.state === HubConnectionState.Connected) {
+          friendRequestConnection?.invoke("NotifyRequestAccepted", requester_id, friend_request_id)
+        }
       })
       .catch((error) => {
         console.log(error);
       });
   };
-  const denyRequest = (friend_request_id: string) => {
+  const denyRequest = (friend_request_id: string, requester_id: string) => {
     axios
       .post(
         `${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/deny_request`,
@@ -247,6 +295,9 @@ function PendingRequests({
       )
       .then((response) => {
         console.log("Deny accepted refresh");
+        if (friendRequestConnection?.state === HubConnectionState.Connected) {
+          friendRequestConnection.invoke("NotifyRequestDenied", requester_id, friend_request_id)
+        }
         getPendingRequests();
       })
       .catch((error) => {
@@ -264,6 +315,9 @@ function PendingRequests({
         setResponseMessage(`Sent request to ${response.data.username}`)
         getPendingRequests();
         setFriendEmail("");
+        if (friendRequestConnection?.state === HubConnectionState.Connected) {
+          friendRequestConnection?.invoke("SendFriendRequest", response.data.friend_request_id, response.data.friend_id)
+        }
       })
       .catch((error) => {
         switch (error.response.status) {
@@ -284,9 +338,10 @@ function PendingRequests({
       });
   };
   const insertRequests = () => {
+    console.log(requests)
     return requests.map((request) => {
       return (
-        <div className="flex flex-row border-t-2 border-gray-400">
+        <div className="flex flex-row ">
           <div className="flex flex-row gap-3 items-center m-3">
             <img
               src={`${process.env.REACT_APP_API_URL}/api/users/${request.user_id}/profilePicture`}
@@ -297,12 +352,12 @@ function PendingRequests({
                 event.target.src = defaultProfilePic;
               }}
             />
-            <div>{request.username}</div>{" "}
+            <div>{request.username}</div>
           </div>
           <div className="flex flex-row grow items-center justify-end gap-5 pr-5">
             {request.requested === "false" ? (
               <FontAwesomeIcon
-                onClick={() => acceptRequest(request.friend_request_id)}
+                onClick={() => acceptRequest(request.friend_request_id, request.user_id)}
                 size="xl"
                 icon={icon({ name: "check-circle" })}
                 className="text-gray-400 hover:text-green-300 active:text-gray-50"
@@ -311,7 +366,7 @@ function PendingRequests({
               ""
             )}
             <FontAwesomeIcon
-              onClick={() => denyRequest(request.friend_request_id)}
+              onClick={() => denyRequest(request.friend_request_id, request.user_id)}
               size="xl"
               icon={icon({ name: "xmark-circle" })}
               className="text-gray-400  hover:text-red-500 active:text-red-700"
@@ -411,7 +466,7 @@ function AllFriends({
   const insertFriends = () => {
     return friends.map((friend) => {
       return (
-        <div className="flex flex-row border-t-2 border-gray-400">
+        <div className="flex flex-row  " key={friend.username}>
           <div className="flex flex-row gap-3 items-center m-3">
             <img
               src={`${process.env.REACT_APP_API_URL}/api/users/${friend.user_id}/profilePicture`}
@@ -510,7 +565,7 @@ function FriendsPage({
               onClick={() =>
                 setFriendsPageSection(FriendsPageSection.AllFriends)
               }
-              className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 rounded-md ${friendsPageSection === FriendsPageSection.AllFriends
+              className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 rounded-md select-none ${friendsPageSection === FriendsPageSection.AllFriends
                 ? "bg-slate-50/50 text-gray-50"
                 : ""
                 }`}
@@ -521,7 +576,7 @@ function FriendsPage({
               onClick={() =>
                 setFriendsPageSection(FriendsPageSection.PendingRequests)
               }
-              className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 rounded-md ${friendsPageSection === FriendsPageSection.PendingRequests
+              className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 select-none rounded-md ${friendsPageSection === FriendsPageSection.PendingRequests
                 ? "bg-slate-50/50 text-gray-50"
                 : ""
                 }`}
@@ -737,7 +792,7 @@ function Settings({
   return (
     <dialog
       ref={dialogRef}
-      className="absolute h-[25rem] w-5/6 sm:w-[30rem]  border-2 border-gray-200 rounded-md m-auto top-1/2 bottom-1/2 dark:bg-gray-800 dark:text-gray-200 z-10"
+      className="absolute h-[25rem] w-5/6 sm:w-[30rem]   rounded-md m-auto top-1/2 bottom-1/2 dark:bg-gray-800 dark:text-gray-200 z-10"
     >
       <div className=" p-5 flex flex-col gap-3">
         <div className="flex-row flex justify-between ">
@@ -813,6 +868,7 @@ function Home() {
   const { jwt } = useOutletContext<PrivateOutletContext>();
   const { userInfo, setUserInfo } = useUserInfo();
   const [, forceUpdate] = useReducer(x => x + 1, 0);
+  const [notificationConnection, setNotificationConnection] = useState<HubConnection>();
 
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -833,7 +889,37 @@ function Home() {
     if (jwt !== "") {
       getFriends();
     }
+
   }, [jwt]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const connect = async () => {
+    console.log("Connecting")
+    let connection = new HubConnectionBuilder()
+      .withUrl(`${process.env.REACT_APP_WEBSOCKETS_URL}/notification`, {
+        accessTokenFactory() {
+          return jwt;
+        }
+      })
+      .configureLogging(LogLevel.Information)
+      .build();
+    await connection.start().then(() => connection.invoke("GoOnline", {
+      Username: userInfo.username,
+      ChatId: chat.chatId,
+      UserId: userInfo.userId,
+    })).catch((error) => {
+      console.log(error)
+    })
+    connection.on("receiveNotification", receiveNotification)
+    setNotificationConnection(connection);
+  }
+  const receiveNotification = (message: string) => {
+    console.log(message);
+  }
+
+  const sendNotification = () => {
+    console.log("Sending notification")
+    notificationConnection?.invoke("sendNotification", userInfo.userId);
+  }
   const getFriendsList = () => {
     return friends.map((friend) => {
       return (
@@ -884,7 +970,7 @@ function Home() {
         <div className="grow overflow-auto">
           <div
             onClick={() => { setSidebarActive(false); setCurrentPage(Page.friends) }}
-            className={`flex flex-row  gap-4 items-center p-1 pl-3 mb-4 m-1 h-12 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${currentPage === Page.friends
+            className={`flex flex-row select-none gap-4 items-center p-1 pl-3 mb-4 m-1 h-12 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${currentPage === Page.friends
               ? "md:dark:bg-slate-50/50 md:dark:text-gray-50"
               : "md:dark:bg-background"
               }`}
@@ -899,7 +985,7 @@ function Home() {
           <div style={{ textAlign: "center" }}>Direct Messages</div>
           <>{getFriendsList()}</>
         </div>
-        <div className="flex flew-row gap-3 p-3 bg-slate-900 ">
+        <div className="flex flew-row gap-3 p-3 bg-slate-900 " onClick={() => sendNotification()}>
           <div className="flex flex-row gap-3">
             <img key={Date.now()}
               className="h-10 w-10 rounded-full object-cover"
