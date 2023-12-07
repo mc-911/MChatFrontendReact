@@ -13,7 +13,6 @@ import { PrivateOutletContext } from "./protectedRoute";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core/import.macro";
 import useUserInfo from "./useIsAuth";
-import { error } from "console";
 enum Page {
   friends,
   chat,
@@ -868,7 +867,6 @@ function Home() {
   const { jwt } = useOutletContext<PrivateOutletContext>();
   const { userInfo, setUserInfo } = useUserInfo();
   const [, forceUpdate] = useReducer(x => x + 1, 0);
-  const [notificationConnection, setNotificationConnection] = useState<HubConnection>();
 
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -892,34 +890,6 @@ function Home() {
 
   }, [jwt]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const connect = async () => {
-    console.log("Connecting")
-    let connection = new HubConnectionBuilder()
-      .withUrl(`${process.env.REACT_APP_WEBSOCKETS_URL}/notification`, {
-        accessTokenFactory() {
-          return jwt;
-        }
-      })
-      .configureLogging(LogLevel.Information)
-      .build();
-    await connection.start().then(() => connection.invoke("GoOnline", {
-      Username: userInfo.username,
-      ChatId: chat.chatId,
-      UserId: userInfo.userId,
-    })).catch((error) => {
-      console.log(error)
-    })
-    connection.on("receiveNotification", receiveNotification)
-    setNotificationConnection(connection);
-  }
-  const receiveNotification = (message: string) => {
-    console.log(message);
-  }
-
-  const sendNotification = () => {
-    console.log("Sending notification")
-    notificationConnection?.invoke("sendNotification", userInfo.userId);
-  }
   const getFriendsList = () => {
     return friends.map((friend) => {
       return (
@@ -985,7 +955,7 @@ function Home() {
           <div style={{ textAlign: "center" }}>Direct Messages</div>
           <>{getFriendsList()}</>
         </div>
-        <div className="flex flew-row gap-3 p-3 bg-slate-900 " onClick={() => sendNotification()}>
+        <div className="flex flew-row gap-3 p-3 bg-slate-900 " >
           <div className="flex flex-row gap-3">
             <img key={Date.now()}
               className="h-10 w-10 rounded-full object-cover"
