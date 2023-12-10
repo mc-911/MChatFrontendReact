@@ -1,7 +1,13 @@
-import React from "react";
+import React, { MutableRefObject } from "react";
 import defaultProfilePic from "../assets/default_image.jpg";
-import { MessageProps } from "./home";
 
+interface MessageProps {
+  senderName: string;
+  senderId: string;
+  timeSent: Date;
+  content: string;
+  lastMessageRef: MutableRefObject<HTMLDivElement>;
+}
 export function MessageComponent({
   senderName,
   senderId,

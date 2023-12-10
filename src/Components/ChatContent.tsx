@@ -15,13 +15,6 @@ import { ChatInfo } from "./home";
 import { MessageInputComponent } from "./MessageInputComponent";
 import { MessageComponent } from "./MessageComponent";
 
-interface MessageProps {
-  senderName: string;
-  senderId: string;
-  timeSent: Date;
-  content: string;
-  lastMessageRef: MutableRefObject<HTMLDivElement>;
-}
 type Message = {
   senderName: string;
   senderId: string;
