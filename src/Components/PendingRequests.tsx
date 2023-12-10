@@ -12,7 +12,7 @@ import {
 import { useOutletContext } from "react-router-dom";
 import { PrivateOutletContext } from "./protectedRoute";
 import { PendingRequest } from "./FriendsPage";
-
+import defaultProfilePic from "../assets/default_image.jpg";
 export function PendingRequests({
   refreshFriendsFunc,
 }: {
