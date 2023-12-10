@@ -88,7 +88,6 @@ export function PendingRequests({
     user_id: string,
     username: string
   ) => {
-    console.log({ friend_request_id, user_id, username, requested });
     setRequests((prevRequests) => [
       ...prevRequests,
       {
@@ -180,7 +179,6 @@ export function PendingRequests({
       });
   };
   const insertRequests = () => {
-    console.log(requests);
     return requests.map((request) => {
       return (
         <div className="flex flex-row ">
