@@ -91,8 +91,6 @@ export function ChatContent({
     userId: string,
     username: string
   ) => {
-    console.log({ content, time, userId, username });
-    console.log(messages);
     setMessages((prevMessages) => [
       ...prevMessages,
       {
@@ -111,7 +109,6 @@ export function ChatContent({
     }
   }, [chat.chatId]); // eslint-disable-line react-hooks/exhaustive-deps
   const placeMessages = (messages: Message[]) => {
-    console.log(messages);
     return messages.map((message) => {
       return (
         <MessageComponent
@@ -138,7 +135,6 @@ export function ChatContent({
             content: message.content,
           };
         });
-        console.log(newMessages);
         setMessages(newMessages);
       })
       .catch((error) => {});

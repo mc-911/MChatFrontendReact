@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { ChatInfo, Page } from "./home";
 import { Friend } from "./FriendsPage";
+import defaultProfilePic from "../assets/default_image.jpg";
 
 export function AllFriends({
   friends,
@@ -24,8 +25,6 @@ export function AllFriends({
         `${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/friends`
       )
       .then((response) => {
-        const friends: Friend[] = response.data.friends;
-        console.log(friends, "hello");
         refreshFriendsFunc();
       })
       .catch((error) => {});

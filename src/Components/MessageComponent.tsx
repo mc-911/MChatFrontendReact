@@ -55,7 +55,6 @@ export function MessageComponent({
     }
   };
 
-  console.log(lastMessageRef);
   return (
     <div
       className="flex flex-row gap-3 m-3 active:border-0"
