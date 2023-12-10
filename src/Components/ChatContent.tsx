@@ -14,6 +14,7 @@ import useUserInfo from "./useIsAuth";
 import { ChatInfo } from "./home";
 import { MessageInputComponent } from "./MessageInputComponent";
 import { MessageComponent } from "./MessageComponent";
+import defaultProfilePic from "../assets/default_image.jpg";
 
 type Message = {
   senderName: string;
