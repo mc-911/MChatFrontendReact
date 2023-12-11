@@ -5,9 +5,7 @@ import axios from "axios";
 import { PrivateOutletContext } from "./protectedRoute";
 import useUserInfo from "./useIsAuth";
 import { Friend } from "./FriendsPage";
-import FriendsPage from "./FriendsPage";
 import { Settings } from "./Settings";
-import { Chat } from "./Chat";
 import { SideBar } from "./SideBar";
 
 export type ChatInfo = {
@@ -23,11 +21,6 @@ export interface HomeOutletContext {
 }
 function Home() {
   const [friends, setFriends] = useState<Friend[]>([]); // [id, name, profilePic
-  const [chat, setChat] = useState<ChatInfo>({
-    name: "",
-    chatId: "",
-    imageUrl: "",
-  });
   const [sidebarActive, setSidebarActive] = useState(true);
   const { jwt } = useOutletContext<PrivateOutletContext>();
   const { userInfo, setUserInfo } = useUserInfo();

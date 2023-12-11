@@ -2,7 +2,7 @@ import axios from "axios";
 import useUserInfo from "./useIsAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core/import.macro";
-import { Friend, FriendsPageOutletContext } from "./FriendsPage";
+import { FriendsPageOutletContext } from "./FriendsPage";
 import defaultProfilePic from "../assets/default_image.jpg";
 import { Link, useOutletContext } from "react-router-dom";
 

@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core/import.macro";
 import useUserInfo from "./useIsAuth";
 import { Friend } from "./FriendsPage";
-import { ChatInfo } from "./home";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 interface FriendsSectionItemProps {
@@ -93,7 +92,7 @@ export function SideBar(props: SideBarProps) {
             props.setSidebarActive(false);
             navigate("/home/friends", {})
           }}
-          className={`flex flex-row select-none gap-4 items-center p-1 pl-3 mb-4 m-1 h-12 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${new RegExp("(\/home\/friends\/)+").test(location.pathname)
+          className={`flex flex-row select-none gap-4 items-center p-1 pl-3 mb-4 m-1 h-12 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${new RegExp("(/home/friends/)+").test(location.pathname)
             ? "md:dark:bg-slate-50/50 md:dark:text-gray-50"
             : "md:dark:bg-background"
             }`}

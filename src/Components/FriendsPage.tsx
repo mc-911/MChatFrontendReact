@@ -1,9 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core/import.macro";
-import { ChatInfo, HomeOutletContext } from "./home";
-import { useState } from "react";
-import { AllFriends } from "./AllFriends";
-import { PendingRequests } from "./PendingRequests";
+import { HomeOutletContext } from "./home";
 import { Link, Outlet, useLocation, useOutletContext } from "react-router-dom";
 
 

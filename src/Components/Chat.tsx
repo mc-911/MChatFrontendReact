@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, MutableRefObject } from "react";
-import { useLocation, useOutletContext, useParams } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
 import axios from "axios";
 import { HubConnectionState } from "@microsoft/signalr";
 import {
@@ -7,7 +7,6 @@ import {
   LogLevel,
   HubConnection,
 } from "@microsoft/signalr";
-import { PrivateOutletContext } from "./protectedRoute";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core/import.macro";
 import useUserInfo from "./useIsAuth";
@@ -15,7 +14,6 @@ import { ChatInfo, HomeOutletContext } from "./home";
 import { MessageInputComponent } from "./MessageInputComponent";
 import { MessageComponent } from "./MessageComponent";
 import defaultProfilePic from "../assets/default_image.jpg";
-import { error } from "console";
 
 type Message = {
   senderName: string;
@@ -23,9 +21,6 @@ type Message = {
   timeSent: Date;
   content: string;
 };
-interface ChatLocationState {
-  chat: ChatInfo
-}
 export function Chat() {
   const { setSidebarActive, jwt } = useOutletContext<HomeOutletContext>();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -45,7 +40,8 @@ export function Chat() {
     if (id) {
       getChatInfo()
     }
-  }, [id]);
+  }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
   React.useEffect(() => {
     if (jwt !== "" && chatInfo) {
