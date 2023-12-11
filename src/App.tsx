@@ -1,5 +1,5 @@
 import "./Components/css/style.css";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Welcome from "./Components/welcome";
 import Registration from "./Components/registration";
 import Home from "./Components/home";
@@ -16,14 +16,16 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Welcome />} />
-      <Route path="/registration" element={<Registration />} />
+      <Route path="registration" element={<Registration />} />
       <Route element={<PrivateRoutes />}>
-        <Route path="/home" element={<Home />} >
-          <Route path="/home/friends" element={<FriendsPage />} >
-            <Route path="/home/friends/all" element={<AllFriends />} />
-            <Route path="/home/friends/pending" element={<PendingRequests />} />
+        <Route path="home" element={<Home />} >
+          <Route index element={<Navigate to={"friends"} />} />
+          <Route path="friends" element={<FriendsPage />} >
+            <Route index element={<Navigate to={"all"} />} />
+            <Route path="all" element={<AllFriends />} />
+            <Route path="pending" element={<PendingRequests />} />
           </ Route>
-          <Route path="/home/chat/:id" element={<Chat />} />
+          <Route path="chat/:id" element={<Chat />} />
         </Route>
       </Route>
     </Routes>
