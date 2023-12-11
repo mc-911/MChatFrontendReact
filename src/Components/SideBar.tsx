@@ -80,12 +80,21 @@ export function SideBar(props: SideBarProps) {
       className={`bg-background w-screen h-screen md:w-72 flex  ${props.sidebarActive ? "absolute" : "max-sm:hidden"
         } md:static flex-col min-w-[18rem] z-10`}
     >
-      <input
-        className="rounded-md dark:bg-gray-800 m-2 mb-4 h-12 md:h-8 pl-3"
-        type="text"
-        placeholder="Search for a conversation"
-        onChange={(e) => setConvoSearchQuery(e.target.value)}
-      />
+      <div className="m-2 mb-4 h-12 md:h-8 relative ">
+        <input
+          className="rounded-md dark:bg-gray-800 w-full h-12 md:h-8 pl-3"
+          type="text"
+          placeholder="Search for a conversation"
+          value={convoSearchQuery}
+          onChange={(e) => setConvoSearchQuery(e.target.value)}
+        />
+        <FontAwesomeIcon
+          size="xl"
+          icon={icon({ name: "xmark" })}
+          className={`absolute md:inset-y-1 md:right-2 inset-y-2 cursor-pointer right-4 max-md:h-8 ${convoSearchQuery.length ? "" : "hidden"}`}
+          onClick={() => setConvoSearchQuery("")}
+        />
+      </div>
       <div className="grow overflow-auto">
         <Link to={"/home/friends/all"}
           onClick={() => {
@@ -111,7 +120,7 @@ export function SideBar(props: SideBarProps) {
         <div className="flex flex-row gap-3">
           <img
             key={Date.now()}
-            className="h-10 w-10 rounded-full object-cover"
+            className="h-10 w-10 rounded-full object-cover "
             alt="Profile"
             src={`${process.env.REACT_APP_API_URL}/api/users/${userInfo ? userInfo.userId : ""
               }/profilePicture`}
@@ -126,7 +135,7 @@ export function SideBar(props: SideBarProps) {
           <FontAwesomeIcon
             size="xl"
             icon={icon({ name: "cog" })}
-            className="text-gray-400 pr-3 self-center hover:text-gray-200 active:text-gray-50"
+            className="text-gray-400 pr-3 self-center hover:text-gray-200 active:text-gray-50 cursor-pointer"
             onClick={() =>
               props.dialogRef.current?.open
                 ? props.dialogRef.current?.close()

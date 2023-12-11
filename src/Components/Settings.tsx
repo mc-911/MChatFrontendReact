@@ -64,7 +64,7 @@ export function Settings({
           <FontAwesomeIcon
             size="xl"
             icon={icon({ name: "xmark" })}
-            className="  self-center"
+            className="  self-center cursor-pointer"
             onClick={() => dialogRef.current?.close()}
           />
         </div>
@@ -75,9 +75,8 @@ export function Settings({
             src={
               profilePic
                 ? URL.createObjectURL(profilePic)
-                : `${process.env.REACT_APP_API_URL}/api/users/${
-                    userInfo ? userInfo.userId : ""
-                  }/profilePicture`
+                : `${process.env.REACT_APP_API_URL}/api/users/${userInfo ? userInfo.userId : ""
+                }/profilePicture`
             }
             onError={(event) => {
               // @ts-ignore
