@@ -10,21 +10,16 @@ import {
   LogLevel,
 } from "@microsoft/signalr";
 import { useOutletContext } from "react-router-dom";
-import { PrivateOutletContext } from "./protectedRoute";
-import { PendingRequest } from "./FriendsPage";
+import { FriendsPageOutletContext, PendingRequest } from "./FriendsPage";
 import defaultProfilePic from "../assets/default_image.jpg";
-export function PendingRequests({
-  refreshFriendsFunc,
-}: {
-  refreshFriendsFunc: () => Promise<void>;
-}) {
+export function PendingRequests() {
   const [requests, setRequests] = useState<PendingRequest[]>([]);
   const [friendEmail, setFriendEmail] = useState("");
   const [responseMessage, setResponseMessage] = useState("");
   const { userInfo } = useUserInfo();
   const [friendRequestConnection, setFriendRequestConnection] =
     useState<HubConnection>();
-  const { jwt } = useOutletContext<PrivateOutletContext>();
+  const { refreshFriendsFunc, jwt } = useOutletContext<FriendsPageOutletContext>();
 
   const getPendingRequests = () => {
     axios

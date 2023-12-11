@@ -5,14 +5,13 @@ import { icon } from "@fortawesome/fontawesome-svg-core/import.macro";
 import useUserInfo from "./useIsAuth";
 import { Friend } from "./FriendsPage";
 import { ChatInfo } from "./home";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 interface FriendsSectionItemProps {
   name: string;
   profilePic: string;
   chatId: string;
   active: boolean;
-  setChat: React.Dispatch<React.SetStateAction<ChatInfo>>;
   setSidebarActive: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -21,7 +20,6 @@ function FriendsSectionItem({
   profilePic,
   chatId,
   active,
-  setChat,
   setSidebarActive,
 }: FriendsSectionItemProps) {
   return (
@@ -56,21 +54,19 @@ interface SideBarProps {
   setSidebarActive: React.Dispatch<React.SetStateAction<boolean>>;
   friends: Friend[];
   dialogRef: React.RefObject<HTMLDialogElement>;
-  setChat: React.Dispatch<React.SetStateAction<ChatInfo>>;
-  chat: ChatInfo;
 }
 export function SideBar(props: SideBarProps) {
   const { userInfo } = useUserInfo();
   const [, setConvoSearchQuery] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
   const getFriendsList = () => {
     return props.friends.map((friend) => {
       return (
         <FriendsSectionItem
           key={friend.user_id}
-          setChat={props.setChat}
           active={
-            false
+            location.pathname === `/home/chat/${friend.chat_id}`
           }
           name={friend.username}
           profilePic={`${process.env.REACT_APP_API_URL}/api/users/${friend.user_id}/profilePicture`}
@@ -92,12 +88,12 @@ export function SideBar(props: SideBarProps) {
         onChange={(e) => setConvoSearchQuery(e.target.value)}
       />
       <div className="grow overflow-auto">
-        <Link to={"/home/friends"}
+        <Link to={"/home/friends/all"}
           onClick={() => {
             props.setSidebarActive(false);
             navigate("/home/friends", {})
           }}
-          className={`flex flex-row select-none gap-4 items-center p-1 pl-3 mb-4 m-1 h-12 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${false
+          className={`flex flex-row select-none gap-4 items-center p-1 pl-3 mb-4 m-1 h-12 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${new RegExp("(\/home\/friends\/)+").test(location.pathname)
             ? "md:dark:bg-slate-50/50 md:dark:text-gray-50"
             : "md:dark:bg-background"
             }`}

@@ -61,8 +61,6 @@ function Home() {
       className="flex-row flex h-screen w-screen bg-[#EBF7FF] dark:bg-[#000C14]  dark:text-gray-200"
     >
       <SideBar
-        chat={chat}
-        setChat={setChat}
         sidebarActive={sidebarActive}
         setSidebarActive={setSidebarActive}
         dialogRef={dialogRef}

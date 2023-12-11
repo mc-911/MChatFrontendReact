@@ -4,12 +4,8 @@ import { ChatInfo, HomeOutletContext } from "./home";
 import { useState } from "react";
 import { AllFriends } from "./AllFriends";
 import { PendingRequests } from "./PendingRequests";
-import { useOutletContext } from "react-router-dom";
+import { Link, Outlet, useLocation, useOutletContext } from "react-router-dom";
 
-enum FriendsPageSection {
-  AllFriends,
-  PendingRequests,
-}
 
 export type Friend = {
   user_id: string;
@@ -24,23 +20,14 @@ export type PendingRequest = {
   requested: string;
 };
 
+export interface FriendsPageOutletContext {
+  refreshFriendsFunc: () => Promise<void>;
+  friends: Friend[];
+  jwt: string
+}
 function FriendsPage() {
-  const { friends, refreshFriendsFunc, setSidebarActive } = useOutletContext<HomeOutletContext>();
-  const [friendsPageSection, setFriendsPageSection] =
-    useState<FriendsPageSection>(FriendsPageSection.AllFriends);
-  const getCurrentSection = () => {
-    switch (friendsPageSection) {
-      case FriendsPageSection.AllFriends:
-        return (
-          <AllFriends
-            friends={friends}
-            refreshFriendsFunc={refreshFriendsFunc}
-          />
-        );
-      case FriendsPageSection.PendingRequests:
-        return <PendingRequests refreshFriendsFunc={refreshFriendsFunc} />;
-    }
-  };
+  const { friends, refreshFriendsFunc, setSidebarActive, jwt } = useOutletContext<HomeOutletContext>();
+  const location = useLocation();
   return (
     <>
       <div className="flex flex-row flex-nowrap gap-3 items-center py-3 px-4">
@@ -58,41 +45,28 @@ function FriendsPage() {
         </div>
         <div className="flex flex-row items-center grow justify-between">
           <div className="flex flex-row gap-3">
-            <div
-              onClick={() =>
-                setFriendsPageSection(FriendsPageSection.AllFriends)
-              }
-              className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 rounded-md select-none ${friendsPageSection === FriendsPageSection.AllFriends
+            <Link to="/home/friends/all"
+              className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 rounded-md select-none ${location.pathname === "/home/friends/all"
                 ? "bg-slate-50/50 text-gray-50"
                 : ""
                 }`}
             >
               All
-            </div>
-            <div
-              onClick={() =>
-                setFriendsPageSection(FriendsPageSection.PendingRequests)
-              }
-              className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 select-none rounded-md ${friendsPageSection === FriendsPageSection.PendingRequests
+            </Link>
+            <Link to="/home/friends/pending"
+              className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 select-none rounded-md ${location.pathname === "/home/friends/pending"
                 ? "bg-slate-50/50 text-gray-50"
                 : ""
                 }`}
             >
               Pending
-            </div>
+            </Link>
           </div>
-          <button
-            className="bg-slate-300 text-gray-950 font-semibold p-3 rounded-md text-xs"
-            onClick={() =>
-              setFriendsPageSection(FriendsPageSection.PendingRequests)
-            }
-          >
-            Add Friend
-          </button>
+          <Link to="/home/friends/pending" className="bg-slate-300 text-gray-950 font-semibold p-3 rounded-md text-xs">Add Friend</Link>
         </div>
       </div>
       <div className="grow rounded-md bg-secondary flex">
-        {getCurrentSection()}
+        <Outlet context={{ friends, refreshFriendsFunc, jwt } satisfies FriendsPageOutletContext} />
       </div>
     </>
   );
