@@ -56,11 +56,11 @@ interface SideBarProps {
 }
 export function SideBar(props: SideBarProps) {
   const { userInfo } = useUserInfo();
-  const [, setConvoSearchQuery] = useState("");
+  const [convoSearchQuery, setConvoSearchQuery] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const getFriendsList = () => {
-    return props.friends.map((friend) => {
+    return props.friends.filter((friend) => friend.username.toLowerCase().includes(convoSearchQuery.toLowerCase())).map((friend) => {
       return (
         <FriendsSectionItem
           key={friend.user_id}
