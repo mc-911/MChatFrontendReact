@@ -2,19 +2,15 @@ import axios from "axios";
 import useUserInfo from "./useIsAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core/import.macro";
-import { ChatInfo, Page } from "./home";
 import { Friend } from "./FriendsPage";
 import defaultProfilePic from "../assets/default_image.jpg";
+import { Link } from "react-router-dom";
 
 export function AllFriends({
   friends,
-  setChat,
-  setCurrentPage,
   refreshFriendsFunc,
 }: {
   friends: Friend[];
-  setChat: React.Dispatch<React.SetStateAction<ChatInfo>>;
-  setCurrentPage: React.Dispatch<React.SetStateAction<Page>>;
   refreshFriendsFunc: () => Promise<void>;
 }) {
   const { userInfo } = useUserInfo();
@@ -27,7 +23,7 @@ export function AllFriends({
       .then((response) => {
         refreshFriendsFunc();
       })
-      .catch((error) => {});
+      .catch((error) => { });
   };
 
   const removeFriend = (friend_id: string) => {
@@ -61,19 +57,13 @@ export function AllFriends({
             <div>{friend.username}</div>{" "}
           </div>
           <div className="flex flex-row grow items-center justify-end gap-5 pr-5">
-            <FontAwesomeIcon
-              onClick={() => {
-                setChat({
-                  name: friend.username,
-                  chatId: friend.chat_id,
-                  imageUrl: `${process.env.REACT_APP_API_URL}/api/users/${friend.user_id}/profilePicture`,
-                });
-                setCurrentPage(Page.chat);
-              }}
-              size="xl"
-              icon={icon({ name: "message" })}
-              className="text-gray-400 hover:text-gray-200 active:text-gray-50"
-            />
+            <Link to={`/home/chat/${friend.chat_id}`}>
+              <FontAwesomeIcon
+                size="xl"
+                icon={icon({ name: "message" })}
+                className="text-gray-400 hover:text-gray-200 active:text-gray-50"
+              />
+            </Link>
             <FontAwesomeIcon
               onClick={() => removeFriend(friend.user_id)}
               size="xl"

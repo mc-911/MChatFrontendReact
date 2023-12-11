@@ -1,9 +1,10 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core/import.macro";
-import { ChatInfo, Page } from "./home";
+import { ChatInfo, HomeOutletContext } from "./home";
 import { useState } from "react";
 import { AllFriends } from "./AllFriends";
 import { PendingRequests } from "./PendingRequests";
+import { useOutletContext } from "react-router-dom";
 
 enum FriendsPageSection {
   AllFriends,
@@ -23,19 +24,8 @@ export type PendingRequest = {
   requested: string;
 };
 
-function FriendsPage({
-  friends,
-  setChat,
-  setCurrentPage,
-  refreshFriendsFunc,
-  setSidebarActive,
-}: {
-  friends: Friend[];
-  setChat: React.Dispatch<React.SetStateAction<ChatInfo>>;
-  setCurrentPage: React.Dispatch<React.SetStateAction<Page>>;
-  refreshFriendsFunc: () => Promise<void>;
-  setSidebarActive: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
+function FriendsPage() {
+  const { friends, refreshFriendsFunc, setSidebarActive } = useOutletContext<HomeOutletContext>();
   const [friendsPageSection, setFriendsPageSection] =
     useState<FriendsPageSection>(FriendsPageSection.AllFriends);
   const getCurrentSection = () => {
@@ -45,8 +35,6 @@ function FriendsPage({
           <AllFriends
             friends={friends}
             refreshFriendsFunc={refreshFriendsFunc}
-            setCurrentPage={setCurrentPage}
-            setChat={setChat}
           />
         );
       case FriendsPageSection.PendingRequests:
@@ -74,11 +62,10 @@ function FriendsPage({
               onClick={() =>
                 setFriendsPageSection(FriendsPageSection.AllFriends)
               }
-              className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 rounded-md select-none ${
-                friendsPageSection === FriendsPageSection.AllFriends
-                  ? "bg-slate-50/50 text-gray-50"
-                  : ""
-              }`}
+              className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 rounded-md select-none ${friendsPageSection === FriendsPageSection.AllFriends
+                ? "bg-slate-50/50 text-gray-50"
+                : ""
+                }`}
             >
               All
             </div>
@@ -86,11 +73,10 @@ function FriendsPage({
               onClick={() =>
                 setFriendsPageSection(FriendsPageSection.PendingRequests)
               }
-              className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 select-none rounded-md ${
-                friendsPageSection === FriendsPageSection.PendingRequests
-                  ? "bg-slate-50/50 text-gray-50"
-                  : ""
-              }`}
+              className={`hover:bg-slate-50/50 active:text-gray-50 px-3 p-0.5 select-none rounded-md ${friendsPageSection === FriendsPageSection.PendingRequests
+                ? "bg-slate-50/50 text-gray-50"
+                : ""
+                }`}
             >
               Pending
             </div>

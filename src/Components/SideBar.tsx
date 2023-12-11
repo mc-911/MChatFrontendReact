@@ -4,7 +4,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core/import.macro";
 import useUserInfo from "./useIsAuth";
 import { Friend } from "./FriendsPage";
-import { Page, ChatInfo } from "./home";
+import { ChatInfo } from "./home";
+import { Link, useNavigate } from "react-router-dom";
 
 interface FriendsSectionItemProps {
   name: string;
@@ -12,7 +13,6 @@ interface FriendsSectionItemProps {
   chatId: string;
   active: boolean;
   setChat: React.Dispatch<React.SetStateAction<ChatInfo>>;
-  setCurrentPage: React.Dispatch<React.SetStateAction<Page>>;
   setSidebarActive: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -22,21 +22,20 @@ function FriendsSectionItem({
   chatId,
   active,
   setChat,
-  setCurrentPage,
   setSidebarActive,
 }: FriendsSectionItemProps) {
   return (
-    <div
+    <Link
+      to={`/home/chat/${chatId}`}
+
+      state={{ chat: { name, chatId, imageUrl: profilePic } }}
       onClick={() => {
         setSidebarActive(false);
-        setChat({ name, chatId, imageUrl: profilePic });
-        setCurrentPage(Page.chat);
       }}
-      className={`flex flex-row  gap-4 items-center h-12 p-1 pl-3 m-1 rounded-md select-none hover:bg-slate-50/50 active:text-gray-50 ${
-        active
-          ? "md:dark:bg-slate-50/50 md:dark:text-gray-50"
-          : "md:dark:bg-background"
-      } `}
+      className={`flex flex-row  gap-4 items-center h-12 p-1 pl-3 m-1 rounded-md select-none hover:bg-slate-50/50 active:text-gray-50 ${active
+        ? "md:dark:bg-slate-50/50 md:dark:text-gray-50"
+        : "md:dark:bg-background"
+        } `}
     >
       <img
         src={profilePic}
@@ -48,15 +47,13 @@ function FriendsSectionItem({
         }}
       />
       <div className="friendsSectionItemName">{name}</div>
-    </div>
+    </Link>
   );
 }
 
 interface SideBarProps {
   sidebarActive: boolean;
   setSidebarActive: React.Dispatch<React.SetStateAction<boolean>>;
-  setCurrentPage: React.Dispatch<React.SetStateAction<Page>>;
-  currentPage: Page;
   friends: Friend[];
   dialogRef: React.RefObject<HTMLDialogElement>;
   setChat: React.Dispatch<React.SetStateAction<ChatInfo>>;
@@ -65,16 +62,15 @@ interface SideBarProps {
 export function SideBar(props: SideBarProps) {
   const { userInfo } = useUserInfo();
   const [, setConvoSearchQuery] = useState("");
+  const navigate = useNavigate();
   const getFriendsList = () => {
     return props.friends.map((friend) => {
       return (
         <FriendsSectionItem
           key={friend.user_id}
-          setCurrentPage={props.setCurrentPage}
           setChat={props.setChat}
           active={
-            props.chat.chatId === friend.chat_id &&
-            props.currentPage === Page.chat
+            false
           }
           name={friend.username}
           profilePic={`${process.env.REACT_APP_API_URL}/api/users/${friend.user_id}/profilePicture`}
@@ -86,9 +82,8 @@ export function SideBar(props: SideBarProps) {
   };
   return (
     <div
-      className={`bg-background w-screen h-screen md:w-72 flex  ${
-        props.sidebarActive ? "absolute" : "max-sm:hidden"
-      } md:static flex-col min-w-[18rem] z-10`}
+      className={`bg-background w-screen h-screen md:w-72 flex  ${props.sidebarActive ? "absolute" : "max-sm:hidden"
+        } md:static flex-col min-w-[18rem] z-10`}
     >
       <input
         className="rounded-md dark:bg-gray-800 m-2 mb-4 h-12 md:h-8 pl-3"
@@ -97,16 +92,15 @@ export function SideBar(props: SideBarProps) {
         onChange={(e) => setConvoSearchQuery(e.target.value)}
       />
       <div className="grow overflow-auto">
-        <div
+        <Link to={"/home/friends"}
           onClick={() => {
             props.setSidebarActive(false);
-            props.setCurrentPage(Page.friends);
+            navigate("/home/friends", {})
           }}
-          className={`flex flex-row select-none gap-4 items-center p-1 pl-3 mb-4 m-1 h-12 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${
-            props.currentPage === Page.friends
-              ? "md:dark:bg-slate-50/50 md:dark:text-gray-50"
-              : "md:dark:bg-background"
-          }`}
+          className={`flex flex-row select-none gap-4 items-center p-1 pl-3 mb-4 m-1 h-12 rounded-md hover:bg-slate-50/50 active:text-gray-50 ${false
+            ? "md:dark:bg-slate-50/50 md:dark:text-gray-50"
+            : "md:dark:bg-background"
+            }`}
         >
           <FontAwesomeIcon
             size="xl"
@@ -114,7 +108,7 @@ export function SideBar(props: SideBarProps) {
             className="  self-center"
           />
           <div>Friends</div>
-        </div>
+        </Link>
         <div style={{ textAlign: "center" }}>Direct Messages</div>
         <>{getFriendsList()}</>
       </div>
@@ -124,9 +118,8 @@ export function SideBar(props: SideBarProps) {
             key={Date.now()}
             className="h-10 w-10 rounded-full object-cover"
             alt="Profile"
-            src={`${process.env.REACT_APP_API_URL}/api/users/${
-              userInfo ? userInfo.userId : ""
-            }/profilePicture`}
+            src={`${process.env.REACT_APP_API_URL}/api/users/${userInfo ? userInfo.userId : ""
+              }/profilePicture`}
             onError={(event) => {
               // @ts-ignore
               event.target.src = defaultProfilePic;

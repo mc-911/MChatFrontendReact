@@ -6,7 +6,7 @@ export type userInfo = {
 };
 export default function useUserInfo() {
   const getUserInfo = () => {
-    const userInfoString = sessionStorage.getItem("userInfo");
+    const userInfoString = localStorage.getItem("userInfo");
     if (!userInfoString) {
       return { username: "", userId: "" };
     } else {
@@ -18,7 +18,7 @@ export default function useUserInfo() {
 
   const saveUserInfo = (newUserInfo: userInfo) => {
     console.log(`Updating user info to ${newUserInfo}`);
-    sessionStorage.setItem("userInfo", JSON.stringify(newUserInfo));
+    localStorage.setItem("userInfo", JSON.stringify(newUserInfo));
     setUserInfo(newUserInfo);
   };
   return {

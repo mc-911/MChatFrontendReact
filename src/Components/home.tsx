@@ -1,25 +1,26 @@
 import React, { useState, useRef, useReducer } from "react";
 
-import { useOutletContext } from "react-router-dom";
+import { Outlet, useOutletContext } from "react-router-dom";
 import axios from "axios";
 import { PrivateOutletContext } from "./protectedRoute";
 import useUserInfo from "./useIsAuth";
 import { Friend } from "./FriendsPage";
 import FriendsPage from "./FriendsPage";
 import { Settings } from "./Settings";
-import { ChatContent } from "./ChatContent";
+import { Chat } from "./Chat";
 import { SideBar } from "./SideBar";
-export enum Page {
-  friends,
-  chat,
-}
 
 export type ChatInfo = {
   chatId: string;
   name: string;
   imageUrl: string;
 };
-
+export interface HomeOutletContext {
+  friends: Friend[];
+  refreshFriendsFunc: () => Promise<void>;
+  setSidebarActive: React.Dispatch<React.SetStateAction<boolean>>;
+  jwt: string;
+}
 function Home() {
   const [friends, setFriends] = useState<Friend[]>([]); // [id, name, profilePic
   const [chat, setChat] = useState<ChatInfo>({
@@ -28,7 +29,6 @@ function Home() {
     imageUrl: "",
   });
   const [sidebarActive, setSidebarActive] = useState(true);
-  const [currentPage, setCurrentPage] = useState<Page>(Page.friends);
   const { jwt } = useOutletContext<PrivateOutletContext>();
   const { userInfo, setUserInfo } = useUserInfo();
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
@@ -45,7 +45,7 @@ function Home() {
         setFriends(friends);
         console.log(friends, "hello");
       })
-      .catch((error) => {});
+      .catch((error) => { });
   };
 
   React.useEffect(() => {
@@ -54,22 +54,6 @@ function Home() {
     }
   }, [jwt]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const getCurrentPage = () => {
-    switch (currentPage) {
-      case Page.friends:
-        return (
-          <FriendsPage
-            setCurrentPage={setCurrentPage}
-            setChat={setChat}
-            friends={friends}
-            refreshFriendsFunc={getFriends}
-            setSidebarActive={setSidebarActive}
-          />
-        );
-      case Page.chat:
-        return <ChatContent chat={chat} setSidebarActive={setSidebarActive} />;
-    }
-  };
   console.log(userInfo);
   return (
     <div
@@ -82,12 +66,10 @@ function Home() {
         sidebarActive={sidebarActive}
         setSidebarActive={setSidebarActive}
         dialogRef={dialogRef}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
         friends={friends}
       />
       <div className="flex flex-col flex-grow w-screen h-screen absolute md:static ">
-        {getCurrentPage()}
+        <Outlet context={{ friends, refreshFriendsFunc: getFriends, setSidebarActive, jwt } satisfies HomeOutletContext} />
         <Settings
           dialogRef={dialogRef}
           imgRefreshFunc={forceUpdate}
