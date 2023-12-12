@@ -32,7 +32,7 @@ export function Chat() {
 
   useEffect(() => {
     if (lastMessageRef.current) {
-      lastMessageRef.current.focus();
+      lastMessageRef.current.scrollIntoView();
     }
   }, [messages.length]);
 
