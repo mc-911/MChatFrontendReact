@@ -73,6 +73,7 @@ export function Chat() {
             console.log("Real time sending");
             connection.invoke("SendMessage", message, timestamp.toString());
           }
+          receiveMessage(message, timestamp.toString(), userInfo.userId, userInfo.username);
         });
     }
   };
@@ -111,6 +112,7 @@ export function Chat() {
     userId: string,
     username: string
   ) => {
+    console.log("Message Received")
     setMessages((prevMessages) => [
       ...prevMessages,
       {
