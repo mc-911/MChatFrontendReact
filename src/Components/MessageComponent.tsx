@@ -77,7 +77,7 @@ export function MessageComponent({
           <div className="font-semibold">{senderName}</div>
           <div className="text-sm text-gray-400">{time()}</div>
         </div>
-        <div className="grow max-w-full">{content}</div>
+        <div className="break-all">{content}</div>
       </div>
     </div>
   );
