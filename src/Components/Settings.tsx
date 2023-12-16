@@ -25,7 +25,7 @@ export function Settings({
       formData.append("profilePicture", profilePic);
       axios
         .put(
-          `${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/profilePicture`,
+          `${process.env.REACT_APP_API_URL}/api/user/${userInfo.userId}/profilePicture`,
           formData
         )
         .catch((error) => {
@@ -39,7 +39,7 @@ export function Settings({
     if (username !== userInfo.username) {
       axios
         .put(
-          `${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/username`,
+          `${process.env.REACT_APP_API_URL}/api/user/${userInfo.userId}/username`,
           { new_username: username }
         )
         .then((response) => {
@@ -75,7 +75,7 @@ export function Settings({
             src={
               profilePic
                 ? URL.createObjectURL(profilePic)
-                : `${process.env.REACT_APP_API_URL}/api/users/${userInfo ? userInfo.userId : ""
+                : `${process.env.REACT_APP_API_URL}/api/user/${userInfo ? userInfo.userId : ""
                 }/profilePicture`
             }
             onError={(event) => {

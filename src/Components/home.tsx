@@ -31,7 +31,7 @@ function Home() {
   const getFriends = async () => {
     await axios
       .get(
-        `${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/friends`
+        `${process.env.REACT_APP_API_URL}/api/user/${userInfo.userId}/friends`
       )
       .then((response) => {
         const friends: Friend[] = response.data.friends;

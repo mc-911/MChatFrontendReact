@@ -13,7 +13,7 @@ export function AllFriends() {
   const getFriends = async () => {
     await axios
       .get(
-        `${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/friends`
+        `${process.env.REACT_APP_API_URL}/api/user/${userInfo.userId}/friends`
       )
       .then((response) => {
         refreshFriendsFunc();
@@ -24,7 +24,7 @@ export function AllFriends() {
   const removeFriend = (friend_id: string) => {
     axios
       .delete(
-        `${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/friends/${friend_id}`
+        `${process.env.REACT_APP_API_URL}/api/user/${userInfo.userId}/friends/${friend_id}`
       )
       .then(() => {
         console.log("Friend removed");
@@ -41,7 +41,7 @@ export function AllFriends() {
         <div className="flex flex-row  " key={friend.username}>
           <div className="flex flex-row gap-3 items-center m-3">
             <img
-              src={`${process.env.REACT_APP_API_URL}/api/users/${friend.user_id}/profilePicture`}
+              src={`${process.env.REACT_APP_API_URL}/api/user/${friend.user_id}/profilePicture`}
               alt="Uh Oh"
               className="w-8 h-8 object-cover rounded-full"
               onError={(event) => {

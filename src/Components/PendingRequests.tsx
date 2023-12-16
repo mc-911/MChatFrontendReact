@@ -24,7 +24,7 @@ export function PendingRequests() {
   const getPendingRequests = () => {
     axios
       .get(
-        `${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/friend_request`
+        `${process.env.REACT_APP_API_URL}/api/user/${userInfo.userId}/friend_request`
       )
       .then((response) => {
         setRequests(response.data);
@@ -96,7 +96,7 @@ export function PendingRequests() {
   const acceptRequest = (friend_request_id: string, requester_id: string) => {
     axios
       .post(
-        `${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/accept_request`,
+        `${process.env.REACT_APP_API_URL}/api/user/${userInfo.userId}/accept_request`,
         { request_id: friend_request_id }
       )
       .then((response) => {
@@ -118,7 +118,7 @@ export function PendingRequests() {
   const denyRequest = (friend_request_id: string, requester_id: string) => {
     axios
       .post(
-        `${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/deny_request`,
+        `${process.env.REACT_APP_API_URL}/api/user/${userInfo.userId}/deny_request`,
         { request_id: friend_request_id }
       )
       .then((response) => {
@@ -139,7 +139,7 @@ export function PendingRequests() {
   const sendFriendRequest = (friend_email: string) => {
     axios
       .post(
-        `${process.env.REACT_APP_API_URL}/api/users/${userInfo.userId}/friend_request`,
+        `${process.env.REACT_APP_API_URL}/api/user/${userInfo.userId}/friend_request`,
         { friend_email }
       )
       .then((response) => {
@@ -179,7 +179,7 @@ export function PendingRequests() {
         <div className="flex flex-row ">
           <div className="flex flex-row gap-3 items-center m-3">
             <img
-              src={`${process.env.REACT_APP_API_URL}/api/users/${request.user_id}/profilePicture`}
+              src={`${process.env.REACT_APP_API_URL}/api/user/${request.user_id}/profilePicture`}
               alt="Uh Oh"
               className="w-8 rounded-full"
               onError={(event) => {

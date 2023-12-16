@@ -68,7 +68,7 @@ export function SideBar(props: SideBarProps) {
             location.pathname === `/home/chat/${friend.chat_id}`
           }
           name={friend.username}
-          profilePic={`${process.env.REACT_APP_API_URL}/api/users/${friend.user_id}/profilePicture`}
+          profilePic={`${process.env.REACT_APP_API_URL}/api/user/${friend.user_id}/profilePicture`}
           chatId={friend.chat_id}
           setSidebarActive={props.setSidebarActive}
         />
@@ -122,7 +122,7 @@ export function SideBar(props: SideBarProps) {
             key={Date.now()}
             className="h-10 w-10 rounded-full object-cover "
             alt="Profile"
-            src={`${process.env.REACT_APP_API_URL}/api/users/${userInfo ? userInfo.userId : ""
+            src={`${process.env.REACT_APP_API_URL}/api/user/${userInfo ? userInfo.userId : ""
               }/profilePicture`}
             onError={(event) => {
               // @ts-ignore

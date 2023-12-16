@@ -51,7 +51,7 @@ export function Chat() {
     }
   }, [chatInfo]); // eslint-disable-line react-hooks/exhaustive-deps
   const getChatInfo = async () => {
-    axios.get(`${process.env.REACT_APP_API_URL}/api/chats/${id}/info`).then((response) => {
+    axios.get(`${process.env.REACT_APP_API_URL}/api/chat/${id}/info`).then((response) => {
       console.log(response.data)
       setChatInfo(response.data);
     }).catch((error) => {
@@ -63,8 +63,7 @@ export function Chat() {
     if (connection) {
       const timestamp = Date.now();
       axios
-        .post(`${process.env.REACT_APP_API_URL}/api/storeMessage`, {
-          chatId: chatInfo?.chatId,
+        .post(`${process.env.REACT_APP_API_URL}/api/chat/${chatInfo?.chatId}/storeMessage`, {
           timestamp: timestamp,
           content: message,
         })
@@ -138,9 +137,7 @@ export function Chat() {
   };
   const getMessages = async (chatId: string) => {
     await axios
-      .post(`${process.env.REACT_APP_API_URL}/api/getMessages`, {
-        chatId: chatId,
-      })
+      .get(`${process.env.REACT_APP_API_URL}/api/chat/${chatId}/getMessages`)
       .then((response) => {
         const newMessages = response.data.messages.map((message: any) => {
           return {

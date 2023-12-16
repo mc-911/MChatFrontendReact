@@ -149,7 +149,7 @@ function Registration() {
   };
   const register = () => {
     axios
-      .post(`${process.env.REACT_APP_API_URL}/api/register`, {
+      .post(`${process.env.REACT_APP_API_URL}/api/user/register`, {
         email: email,
         password: password,
         username: username,

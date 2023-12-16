@@ -64,7 +64,7 @@ export function MessageComponent({
     >
       <img
         key={Date.now()}
-        src={`${process.env.REACT_APP_API_URL}/api/users/${senderId}/profilePicture`}
+        src={`${process.env.REACT_APP_API_URL}/api/user/${senderId}/profilePicture`}
         className="h-10 w-10 rounded-full object-cover"
         alt="Sender Profile"
         onError={(event) => {

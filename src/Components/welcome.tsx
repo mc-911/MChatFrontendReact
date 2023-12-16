@@ -24,7 +24,7 @@ function Welcome() {
 
   const verifyToken = (token: string) => {
     axios
-      .post(`${process.env.REACT_APP_API_URL}/api/verify`, {
+      .post(`${process.env.REACT_APP_API_URL}/api/user/verify`, {
         token: token,
       })
       .then(() => {
@@ -47,7 +47,7 @@ function Welcome() {
 
   const login = () => {
     axios
-      .post(`${process.env.REACT_APP_API_URL}/api/login`, {
+      .post(`${process.env.REACT_APP_API_URL}/api/user/login`, {
         email: email.trimEnd(),
         password: password.trimEnd(),
       })
