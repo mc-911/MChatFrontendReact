@@ -25,10 +25,20 @@ export function Chat() {
   const { setSidebarActive, jwt } = useOutletContext<HomeOutletContext>();
   const [messages, setMessages] = useState<Message[]>([]);
   const lastMessageRef = useRef() as MutableRefObject<HTMLDivElement>;
-  const [connection, setConnection] = useState<HubConnection>();
-  const { userInfo } = useUserInfo();
-  const { id } = useParams();
   const [chatInfo, setChatInfo] = useState<ChatInfo>();
+  const getStoredConnection = () => {
+    const oldConnectionString = sessionStorage.getItem(`chat-${chatInfo?.chatId}-connection`)
+    if (oldConnectionString) {
+      const oldConnection = JSON.parse(oldConnectionString) as HubConnection;
+      console.log(oldConnection)
+      return oldConnection;
+    } else {
+      return null
+    }
+  }
+  const { userInfo } = useUserInfo();
+  const [connection, setConnection] = useState<HubConnection | null>(getStoredConnection());
+  const { id } = useParams();
 
   useEffect(() => {
     if (lastMessageRef.current) {
@@ -46,7 +56,9 @@ export function Chat() {
   React.useEffect(() => {
     if (jwt !== "" && chatInfo) {
       getMessages(chatInfo.chatId).then(() => {
-        joinChat();
+        if (!connection) {
+          joinChat();
+        }
       });
     }
   }, [chatInfo]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -103,6 +115,7 @@ export function Chat() {
       .catch((error) => {
         console.log(error);
       });
+    sessionStorage.setItem(`chat-${chatInfo?.chatId}-connection`, JSON.stringify(connection))
     setConnection(connection);
   };
   const receiveMessage = (
