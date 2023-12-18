@@ -114,7 +114,7 @@ function Welcome() {
           ></input>
         </div>
         {errorMessage && <div className="error">{errorMessage}</div>}
-        <a href="register.html" className="text-[#1a91e0] ">
+        <a href="register.html" className="text-[#1a91e0] invisible ">
           Forgot your password?
         </a>
         <button className="btn">Login</button>

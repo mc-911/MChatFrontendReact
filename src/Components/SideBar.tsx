@@ -5,6 +5,8 @@ import { icon } from "@fortawesome/fontawesome-svg-core/import.macro";
 import useUserInfo from "./useIsAuth";
 import { Friend } from "./FriendsPage";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import PlusButton from "../assets/PlusButtonDark.svg"
+import SearchIcon from "../assets/bx-search-alt-2.svg"
 
 interface FriendsSectionItemProps {
   name: string;
@@ -53,6 +55,7 @@ interface SideBarProps {
   setSidebarActive: React.Dispatch<React.SetStateAction<boolean>>;
   friends: Friend[];
   dialogRef: React.RefObject<HTMLDialogElement>;
+  addChatRef: React.RefObject<HTMLDialogElement>;
 }
 export function SideBar(props: SideBarProps) {
   const { userInfo } = useUserInfo();
@@ -80,9 +83,17 @@ export function SideBar(props: SideBarProps) {
       className={`bg-background w-screen h-screen md:w-72 flex  ${props.sidebarActive ? "absolute" : "max-sm:hidden"
         } md:static flex-col min-w-[18rem] z-10`}
     >
+      <div className="flex flex-row justify-between items-center p-3">
+        <div className="text-4xl md:text-2xl font-semibold">Chats</div>
+        <img src={PlusButton} className="h-12 md:h-8" onClick={() =>
+          props.addChatRef.current?.open
+            ? props.addChatRef.current?.close()
+            : props.addChatRef.current?.show()}></img>
+      </div>
       <div className="m-2 mb-4 h-12 md:h-8 relative ">
+        <img src={SearchIcon} className="absolute h-5 md:h-5 left-2 inset-y-3 md:inset-y-2"></img>
         <input
-          className="rounded-md dark:bg-gray-800 w-full h-12 md:h-8 pl-3"
+          className="rounded-md dark:bg-gray-800 w-full h-11 md:h-8 pl-8 text-"
           type="text"
           placeholder="Search for a conversation"
           value={convoSearchQuery}
@@ -90,8 +101,8 @@ export function SideBar(props: SideBarProps) {
         />
         <FontAwesomeIcon
           size="xl"
-          icon={icon({ name: "xmark" })}
-          className={`absolute md:inset-y-1 md:right-2 inset-y-2 cursor-pointer right-4 max-md:h-8 ${convoSearchQuery.length ? "" : "hidden"}`}
+          icon={icon({ name: "circle-xmark" })}
+          className={`absolute md:inset-y-1 right-3 md:right-2 inset-y-2 text-gray-50 cursor-pointer  h-7 md:h-6 ${convoSearchQuery.length ? "" : "hidden"}`}
           onClick={() => setConvoSearchQuery("")}
         />
       </div>
@@ -113,7 +124,6 @@ export function SideBar(props: SideBarProps) {
           />
           <div>Friends</div>
         </Link>
-        <div style={{ textAlign: "center" }}>Direct Messages</div>
         <>{getFriendsList()}</>
       </div>
       <div className="flex flew-row gap-3 p-3 bg-slate-900 ">
