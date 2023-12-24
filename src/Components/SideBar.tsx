@@ -8,26 +8,26 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import PlusButton from "../assets/PlusButtonDark.svg"
 import SearchIcon from "../assets/bx-search-alt-2.svg"
 
-interface FriendsSectionItemProps {
+interface SidebarChatItemProps {
   name: string;
-  profilePic: string;
+  imageUrl: string;
   chatId: string;
   active: boolean;
   setSidebarActive: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function FriendsSectionItem({
+function SidebarChatItem({
   name,
-  profilePic,
+  imageUrl,
   chatId,
   active,
   setSidebarActive,
-}: FriendsSectionItemProps) {
+}: SidebarChatItemProps) {
   return (
     <Link
       to={`/home/chat/${chatId}`}
 
-      state={{ chat: { name, chatId, imageUrl: profilePic } }}
+      state={{ chat: { name, chatId, imageUrl } }}
       onClick={() => {
         setSidebarActive(false);
       }}
@@ -37,7 +37,7 @@ function FriendsSectionItem({
         } `}
     >
       <img
-        src={profilePic}
+        src={imageUrl}
         alt="Uh Oh"
         className="w-8 h-8 object-cover rounded-full"
         onError={(event) => {
@@ -56,6 +56,7 @@ interface SideBarProps {
   friends: Friend[];
   dialogRef: React.RefObject<HTMLDialogElement>;
   addChatRef: React.RefObject<HTMLDialogElement>;
+  chats: { name: string, id: string }[]
 }
 export function SideBar(props: SideBarProps) {
   const { userInfo } = useUserInfo();
@@ -65,14 +66,30 @@ export function SideBar(props: SideBarProps) {
   const getFriendsList = () => {
     return props.friends.filter((friend) => friend.username.toLowerCase().includes(convoSearchQuery.toLowerCase())).map((friend) => {
       return (
-        <FriendsSectionItem
+        <SidebarChatItem
           key={friend.user_id}
           active={
             location.pathname === `/home/chat/${friend.chat_id}`
           }
           name={friend.username}
-          profilePic={`${process.env.REACT_APP_API_URL}/api/user/${friend.user_id}/profilePicture`}
+          imageUrl={`${process.env.REACT_APP_API_URL}/api/user/${friend.user_id}/profilePicture`}
           chatId={friend.chat_id}
+          setSidebarActive={props.setSidebarActive}
+        />
+      );
+    });
+  };
+  const getChatsList = () => {
+    return props.chats.filter((chat) => chat.name.toLowerCase().includes(convoSearchQuery.toLowerCase())).map((chat) => {
+      return (
+        <SidebarChatItem
+          key={chat.id}
+          active={
+            location.pathname === `/home/chat/${chat.id}`
+          }
+          name={chat.name}
+          imageUrl={`${process.env.REACT_APP_API_URL}/api/chat/${chat.id}/profilePicture`}
+          chatId={chat.id}
           setSidebarActive={props.setSidebarActive}
         />
       );
@@ -85,7 +102,7 @@ export function SideBar(props: SideBarProps) {
     >
       <div className="flex flex-row justify-between items-center p-3">
         <div className="text-4xl md:text-2xl font-semibold">Chats</div>
-        <img src={PlusButton} className="h-12 md:h-8" onClick={() =>
+        <img src={PlusButton} className="h-12 md:h-8 cursor-pointer" onClick={() =>
           props.addChatRef.current?.open
             ? props.addChatRef.current?.close()
             : props.addChatRef.current?.show()}></img>
@@ -125,6 +142,7 @@ export function SideBar(props: SideBarProps) {
           <div>Friends</div>
         </Link>
         <>{getFriendsList()}</>
+        <>{getChatsList()}</>
       </div>
       <div className="flex flew-row gap-3 p-3 bg-slate-900 ">
         <div className="flex flex-row gap-3">

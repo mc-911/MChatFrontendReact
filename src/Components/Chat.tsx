@@ -167,7 +167,6 @@ export function Chat() {
   if (chatInfo) {
     return (
       <>
-        {" "}
         <div className="flex flex-row items-center">
           <FontAwesomeIcon
             onClick={() => setSidebarActive(true)}
