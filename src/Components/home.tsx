@@ -318,7 +318,7 @@ function Home() {
         friends={friends}
         chats={chats}
       />
-      <div className="flex flex-col flex-grow w-screen h-screen absolute md:static ">
+      <div className="grow w-screen h-screen ">
         <Outlet context={{ friends, refreshFriendsFunc: getFriends, setSidebarActive, jwt } satisfies HomeOutletContext} />
         <Settings
           dialogRef={dialogRef}

@@ -166,7 +166,7 @@ export function Chat() {
   };
   if (chatInfo) {
     return (
-      <>
+      <div className="flex flex-col h-full w-full">
         <div className="flex flex-row items-center">
           <FontAwesomeIcon
             onClick={() => setSidebarActive(true)}
@@ -200,7 +200,7 @@ export function Chat() {
           placeholder={`Message ${chatInfo.name}`}
           sendMessageFunc={sendMessage}
         />
-      </>
+      </div>
     );
   } else {
     return (<>

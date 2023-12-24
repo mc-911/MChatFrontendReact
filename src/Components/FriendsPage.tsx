@@ -26,7 +26,8 @@ function FriendsPage() {
   const { friends, refreshFriendsFunc, setSidebarActive, jwt } = useOutletContext<HomeOutletContext>();
   const location = useLocation();
   return (
-    <>
+    <div className="flex flex-col h-full">
+
       <div className="flex flex-row flex-nowrap gap-3 items-center py-3 px-4">
         <div className="flex flex-row items-center">
           <FontAwesomeIcon
@@ -65,7 +66,7 @@ function FriendsPage() {
       <div className="grow rounded-md bg-secondary flex">
         <Outlet context={{ friends, refreshFriendsFunc, jwt } satisfies FriendsPageOutletContext} />
       </div>
-    </>
+    </div>
   );
 }
 
