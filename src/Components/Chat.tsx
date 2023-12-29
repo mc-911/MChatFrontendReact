@@ -21,7 +21,6 @@ import disabledDoorIcon from "../assets/disabled door icon.svg"
 import triangle from "../assets/tooltip-triangle.svg"
 import SearchIcon from "../assets/bx-search-alt-2.svg"
 import { PendingRequest } from "./FriendsPage";
-import { PendingRequests } from "./PendingRequests";
 
 type Message = {
   senderName: string;
@@ -360,7 +359,7 @@ export function Chat() {
       const memberIsFriend = friends.findIndex((friend) => friend.user_id === member.user_id) !== -1;
       const requestSentToMember = requests.findIndex((request) => request.user_id === member.user_id) !== -1;
       const disableFriendRequestBtn = (memberIsUser || memberIsFriend || requestSentToMember);
-      const disableRemoveBtn = role === 'OWNER' && userInfo.userId === member.user_id || userInfo.userId !== member.user_id && role !== 'OWNER'
+      const disableRemoveBtn = (role === 'OWNER' && userInfo.userId === member.user_id) || (userInfo.userId !== member.user_id && role !== 'OWNER')
       return <><div className="flex flex-row justify-between p-2 pr-0 items-center cursor-pointer sm:cursor-default hover:bg-white hover:bg-opacity-25 md:hover:bg-transparent md:bg-opacity-100 rounded-md  relative" onClick={screenWidth < 768 ? toggleDialog : () => { }}>
         <div className="flex flex-row gap-3 items-center">
           <img
@@ -413,7 +412,7 @@ export function Chat() {
             <div className="flex flex-row gap-3 items-center">
 
               <div className=" relative ">
-                <img src={SearchIcon} className="absolute h-5 sm:h-5 left-2 inset-y-3 md:inset-y-2"></img>
+                <img alt="magnifying glass" src={SearchIcon} className="absolute h-5 sm:h-5 left-2 inset-y-3 md:inset-y-2"></img>
                 <input
                   className={`rounded-md dark:bg-gray-800 ${messageSearchQuery.length ? "w-64" : "w-28"}  focus:w-64 h-11 md:h-8 pl-8 `}
                   type="text"
@@ -429,7 +428,7 @@ export function Chat() {
                   onClick={() => setMessageSearchQuery("")}
                 />
               </div>
-              <img src={infoIcon} className="h-10 cursor-pointer" onClick={() => setShowChatSidebar(!showChatSidebar)} /></div>
+              <img alt="infomation" src={infoIcon} className="h-10 cursor-pointer" onClick={() => setShowChatSidebar(!showChatSidebar)} /></div>
           </div>
           <div className="grow bg-secondary overflow-auto scroll px-3">
             <>
@@ -471,15 +470,15 @@ export function Chat() {
               :
               ''}
             <div className="flex flex-row gap-8 w-full justify-center my-3 select-none">
-              <div className="flex flex-col items-center  gap-1 cursor-pointer"><img src={searchIcon} className="h-11" />
+              <div className="flex flex-col items-center  gap-1 cursor-pointer"><img alt="magnifying glass" src={searchIcon} className="h-11" />
                 <div>Search</div>
               </div>
               {chatInfo.type === "GROUP" && <div className={`flex flex-col items-center relative group`} >
                 <div className={`flex flex-col items-center gap-1 ${role === 'OWNER' ? '' : 'cursor-pointer'}`} onClick={() => role === 'OWNER' ? {} : removeFromChat(userInfo.userId)} >
-                  <img src={role === 'OWNER' ? disabledDoorIcon : doorIcon} className="h-11" />
+                  <img alt="open door" src={role === 'OWNER' ? disabledDoorIcon : doorIcon} className="h-11" />
                   <div className={`${role === 'OWNER' ? 'text-[#919397]' : ''}`}>Leave</div>
                 </div>
-                <div className={`absolute invisible ${role === 'OWNER' ? 'group-hover:visible' : ''} block top-20 `}><img src={triangle} className="h-2 img w-24 left-0 right-0 m-auto bg-black text-black" /><div className="h-12 w-48 text-center m-0 bg-black rounded-md ">Owners may not leave their chats</div></div>
+                <div className={`absolute invisible ${role === 'OWNER' ? 'group-hover:visible' : ''} block top-20 `}><img alt="popup triangle" src={triangle} className="h-2 img w-24 left-0 right-0 m-auto bg-black text-black" /><div className="h-12 w-48 text-center m-0 bg-black rounded-md ">Owners may not leave their chats</div></div>
               </div>}
             </div>
 

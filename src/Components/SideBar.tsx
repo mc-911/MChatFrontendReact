@@ -108,13 +108,12 @@ export function SideBar(props: SideBarProps) {
     >
       <div className="flex flex-row justify-between items-center p-3">
         <div className="text-4xl md:text-2xl font-semibold">Chats</div>
-        <img src={PlusButton} className="h-12 sm:h-8 cursor-pointer"
-
+        <img alt="plus button" src={PlusButton} className="h-12 sm:h-8 cursor-pointer"
           onClick={() => setShowAddChatModal(!showAddChatModal)
           }></img>
       </div>
       <div className="m-2 mb-4 h-12 sm:h-8 relative ">
-        <img src={SearchIcon} className="absolute h-5 sm:h-5 left-2 inset-y-3 md:inset-y-2"></img>
+        <img alt="magnifying glass" src={SearchIcon} className="absolute h-5 sm:h-5 left-2 inset-y-3 md:inset-y-2"></img>
         <input
           className="rounded-md dark:bg-gray-800 w-full h-11 md:h-8 pl-8 text-"
           type="text"

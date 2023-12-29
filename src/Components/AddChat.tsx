@@ -6,7 +6,7 @@ import OutlineWrench from "../assets/wrench solid dark.svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { CreateChat } from "./CreateChat";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 export enum AddChatSection {
@@ -85,8 +85,8 @@ export function AddChat({ showModal, setShowModal, setChats }: {
                 <div className="text-center text-lg my-2 ">Create</div>
                 <div className="text-center text-sm text-gray-400">Make your own group chat</div>
                 <div className="relative grow">
-                    <img src={OutlineWrench} className="h-3/5 absolute right-0 left-0 top-0 bottom-0 m-auto -rotate-45 group-hover:-rotate-[35deg]" />
-                    <img src={OutlineHammer} className="h-[50%] absolute right-0 left-0 m-auto top-0 bottom-0 rotate-45 group-hover:rotate-[35deg]" />
+                    <img alt="wrench" src={OutlineWrench} className="h-3/5 absolute right-0 left-0 top-0 bottom-0 m-auto -rotate-45 group-hover:-rotate-[35deg]" />
+                    <img alt="hammer" src={OutlineHammer} className="h-[50%] absolute right-0 left-0 m-auto top-0 bottom-0 rotate-45 group-hover:rotate-[35deg]" />
                 </div>
             </div>
             <div className="border-white group bg-gray-800 grow relative hover:visible  flex flex-col cursor-pointer" onClick={(e) => {
@@ -95,8 +95,8 @@ export function AddChat({ showModal, setShowModal, setChats }: {
                 <div className="text-center text-lg my-2">Join</div>
                 <div className="text-center text-sm text-gray-400">Join an existing group chat</div>
                 <div className="relative grow">
-                    <img src={DoorClosed} className="absolute h-3/6 left-0 right-0 top-0 bottom-0 m-auto group-hover:invisible" />
-                    <img src={DoorOpen} className="absolute h-[60%] left-0 right-0 top-1/4 mx-auto invisible group-hover:visible" />
+                    <img alt="close door" src={DoorClosed} className="absolute h-3/6 left-0 right-0 top-0 bottom-0 m-auto group-hover:invisible" />
+                    <img alt="open door" src={DoorOpen} className="absolute h-[60%] left-0 right-0 top-1/4 mx-auto invisible group-hover:visible" />
                 </div>
             </div>
         </div>;

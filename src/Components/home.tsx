@@ -1,4 +1,4 @@
-import React, { useState, useRef, useReducer, useEffect } from "react";
+import React, { useState, useRef, useReducer } from "react";
 import { Outlet, useOutletContext } from "react-router-dom";
 import axios from "axios";
 import { PrivateOutletContext } from "./protectedRoute";

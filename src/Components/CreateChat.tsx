@@ -12,7 +12,7 @@ function MemberDropdownItem(props: { userId: string, username: string, addMember
     const [added, setAdded] = useState(false);
     useEffect(() => {
         setAdded(props.selectedMembers.find((member) => member.userId === props.userId) !== undefined)
-    }, [props.selectedMembers])
+    }, [props.selectedMembers, props.userId])
     return <div className="justify-between flex flex-row h-8 items-center rounded-md pr-1" key={props.userId}>
         <div className="flex flex-row gap-2 pl-1 items-center h-full">
             <img
@@ -85,7 +85,6 @@ export function CreateChat(props: {
     const [friends, setFriends] = useState<Friend[]>([])
     const resultsRef = useRef<HTMLDivElement>(null)
     const inputContainerRef = useRef<HTMLDivElement>(null)
-    const navigate = useNavigate();
 
     const addSelectedChatMember = (userId: string, username: string) => {
         setSelectedChatMembers((prevSelectedChatMembers) => [...prevSelectedChatMembers, { userId, username }])
@@ -94,21 +93,6 @@ export function CreateChat(props: {
         setSelectedChatMembers(selectedChatMembers.filter((member) => member.userId !== userId))
         console.log(userId)
         console.log(selectedChatMembers)
-    }
-
-    function handleMouseClick(event: MouseEvent) {
-        if (showResults && inputContainerRef.current && !inputContainerRef.current?.contains(event.target as Node)) {
-            setShowResults(false);
-        }
-    }
-    document.addEventListener('mousedown', handleMouseClick);
-    useEffect(() => {
-        getFriends()
-    }, [])
-    function Friends() {
-        return friends.filter((friend) => friend.username.toLowerCase().includes(searchQuery.toLowerCase())).map((friend) => {
-            return <MemberDropdownItem selectedMembers={selectedChatMembers} userId={friend.user_id} username={friend.username} addMemberFunc={addSelectedChatMember} removeMemberFunc={removeSelectedChatMember} />
-        })
     }
 
     const getFriends = async () => {
@@ -123,6 +107,21 @@ export function CreateChat(props: {
             })
             .catch((error) => { });
     };
+    function handleMouseClick(event: MouseEvent) {
+        if (showResults && inputContainerRef.current && !inputContainerRef.current?.contains(event.target as Node)) {
+            setShowResults(false);
+        }
+    }
+    document.addEventListener('mousedown', handleMouseClick);
+    useEffect(() => {
+        getFriends()
+    }, [getFriends])
+    function Friends() {
+        return friends.filter((friend) => friend.username.toLowerCase().includes(searchQuery.toLowerCase())).map((friend) => {
+            return <MemberDropdownItem selectedMembers={selectedChatMembers} userId={friend.user_id} username={friend.username} addMemberFunc={addSelectedChatMember} removeMemberFunc={removeSelectedChatMember} />
+        })
+    }
+
     const createChat = async () => {
         axios.post(`${process.env.REACT_APP_API_URL}/api/chat`, { userId: userInfo.userId, name: chatName, memberIds: selectedChatMembers.map((member) => member.userId) }).then((res) => {
             props.setChats((prevChats) => [...prevChats, { id: res.data.chatId, name: res.data.name }])
