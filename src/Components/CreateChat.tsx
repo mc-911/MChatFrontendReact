@@ -2,7 +2,6 @@ import { icon } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import { Friend } from "./FriendsPage";
 import { AddChatSection } from "./AddChat";
 import useUserInfo from "./useIsAuth";
@@ -115,7 +114,7 @@ export function CreateChat(props: {
     document.addEventListener('mousedown', handleMouseClick);
     useEffect(() => {
         getFriends()
-    }, [getFriends])
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
     function Friends() {
         return friends.filter((friend) => friend.username.toLowerCase().includes(searchQuery.toLowerCase())).map((friend) => {
             return <MemberDropdownItem selectedMembers={selectedChatMembers} userId={friend.user_id} username={friend.username} addMemberFunc={addSelectedChatMember} removeMemberFunc={removeSelectedChatMember} />
