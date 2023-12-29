@@ -65,6 +65,9 @@ function Welcome() {
           case 400:
             setErrorMessage("Your Email or Password is incorrect");
             break;
+          case 404:
+            setErrorMessage("Your Email or Password is incorrect");
+            break;
           default:
             setErrorMessage("Something went wrong");
         }
