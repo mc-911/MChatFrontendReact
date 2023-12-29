@@ -478,7 +478,7 @@ export function Chat() {
                   <img alt="open door" src={role === 'OWNER' ? disabledDoorIcon : doorIcon} className="h-11" />
                   <div className={`${role === 'OWNER' ? 'text-[#919397]' : ''}`}>Leave</div>
                 </div>
-                <div className={`absolute invisible ${role === 'OWNER' ? 'group-hover:visible' : ''} block top-20 `}><img alt="popup triangle" src={triangle} className="h-2 img w-24 left-0 right-0 m-auto bg-black text-black" /><div className="h-12 w-48 text-center m-0 bg-black rounded-md ">Owners may not leave their chats</div></div>
+                <div className={`absolute invisible ${role === 'OWNER' ? 'group-hover:visible' : ''} block top-20 `}><img alt="popup triangle" src={triangle} className="h-2 img w-24 left-0 right-0 m-auto bg-black text-black" /><div className="h-12 w-48 text-center m-0 bg-[#231f20] rounded-md ">Owners may not leave their chats</div></div>
               </div>}
             </div>
 
