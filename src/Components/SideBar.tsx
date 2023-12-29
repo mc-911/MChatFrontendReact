@@ -7,6 +7,7 @@ import { Friend } from "./FriendsPage";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import PlusButton from "../assets/PlusButtonDark.svg"
 import SearchIcon from "../assets/bx-search-alt-2.svg"
+import { AddChat } from "./AddChat";
 
 interface SidebarChatItemProps {
   name: string;
@@ -57,12 +58,17 @@ interface SideBarProps {
   dialogRef: React.RefObject<HTMLDialogElement>;
   addChatRef: React.RefObject<HTMLDialogElement>;
   chats: { name: string, id: string }[]
+  setChats: React.Dispatch<React.SetStateAction<{
+    name: string;
+    id: string;
+  }[]>>
 }
 export function SideBar(props: SideBarProps) {
   const { userInfo } = useUserInfo();
   const [convoSearchQuery, setConvoSearchQuery] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+  const [showAddChatModal, setShowAddChatModal] = useState<Boolean>(false);
   const getFriendsList = () => {
     return props.friends.filter((friend) => friend.username.toLowerCase().includes(convoSearchQuery.toLowerCase())).map((friend) => {
       return (
@@ -97,18 +103,18 @@ export function SideBar(props: SideBarProps) {
   };
   return (
     <div
-      className={`bg-background w-screen h-screen md:w-72 flex  ${props.sidebarActive ? "absolute" : "max-sm:hidden"
+      className={`bg-background w-screen h-screen sm:w-72 flex  ${props.sidebarActive ? "absolute" : "max-sm:hidden"
         } md:static flex-col min-w-[18rem] z-10`}
     >
       <div className="flex flex-row justify-between items-center p-3">
         <div className="text-4xl md:text-2xl font-semibold">Chats</div>
-        <img src={PlusButton} className="h-12 md:h-8 cursor-pointer" onClick={() =>
-          props.addChatRef.current?.open
-            ? props.addChatRef.current?.close()
-            : props.addChatRef.current?.show()}></img>
+        <img src={PlusButton} className="h-12 sm:h-8 cursor-pointer"
+
+          onClick={() => setShowAddChatModal(!showAddChatModal)
+          }></img>
       </div>
-      <div className="m-2 mb-4 h-12 md:h-8 relative ">
-        <img src={SearchIcon} className="absolute h-5 md:h-5 left-2 inset-y-3 md:inset-y-2"></img>
+      <div className="m-2 mb-4 h-12 sm:h-8 relative ">
+        <img src={SearchIcon} className="absolute h-5 sm:h-5 left-2 inset-y-3 md:inset-y-2"></img>
         <input
           className="rounded-md dark:bg-gray-800 w-full h-11 md:h-8 pl-8 text-"
           type="text"
@@ -118,8 +124,8 @@ export function SideBar(props: SideBarProps) {
         />
         <FontAwesomeIcon
           size="xl"
-          icon={icon({ name: "circle-xmark" })}
-          className={`absolute md:inset-y-1 right-3 md:right-2 inset-y-2 text-gray-50 cursor-pointer  h-7 md:h-6 ${convoSearchQuery.length ? "" : "hidden"}`}
+          icon={icon({ name: "xmark" })}
+          className={`absolute md:inset-y-1 right-3 md:right-2 inset-y-2 text-slate-400 cursor-pointer  h-7 md:h-6 ${convoSearchQuery.length ? "" : "hidden"}`}
           onClick={() => setConvoSearchQuery("")}
         />
       </div>
@@ -171,6 +177,7 @@ export function SideBar(props: SideBarProps) {
             }
           />
         </div>
+        <AddChat setShowModal={setShowAddChatModal} showModal={showAddChatModal} setChats={props.setChats} />
       </div>
     </div>
   );

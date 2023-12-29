@@ -36,7 +36,7 @@ function FriendsPage() {
             icon={icon({ name: "arrow-left" })}
             className="text-gray-400 hover:text-gray-100 md:hidden active:text-gray-50   mr-2"
           />
-          <div className="flex flex-row flex-nowrap  p-2  items-center gap-3 border-r-2 border-r-gray-400">
+          <div className="flex flex-row flex-nowrap  p-2  items-center gap-3 ">
             <FontAwesomeIcon size="xl" icon={icon({ name: "user-group" })} />
             <div>Friends</div>
           </div>
