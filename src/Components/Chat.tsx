@@ -441,6 +441,7 @@ export function Chat() {
           <MessageInputComponent
             placeholder={`Message ${chatInfo.name}`}
             sendMessageFunc={sendMessage}
+            connecting={(!connection) || (connection && connection.state !== HubConnectionState.Connected)}
           />
         </div>
         <div className={`bg-background basis-full md:basis-1/4 ${showChatSidebar ? '' : 'hidden'} flex flex-col h-full`} >
