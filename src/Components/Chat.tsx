@@ -46,7 +46,6 @@ function MemberElipsisMenu({ chatId, userId, friendRequestBtnDisabled, removeMem
   document.addEventListener("mouseup", (event) => {
     if (memberDialogRef.current && memberDialogRef.current.open && !memberDialogRef.current.contains(event.target as Node) && !toggleButtonRef.current?.contains(event.target as Node)) {
       memberDialogRef.current.close()
-      console.log("One")
     }
   })
   const { userInfo } = useUserInfo()
@@ -216,7 +215,7 @@ export function Chat() {
   React.useEffect(() => {
     if (jwt !== "" && chatInfo) {
       getMessages(chatInfo.chatId).then(() => {
-        if (!connection) {
+        if (!connection || connection && connection.state !== HubConnectionState.Connected) {
           joinChat();
         }
       });
@@ -249,6 +248,8 @@ export function Chat() {
           if (connection.state === HubConnectionState.Connected) {
             console.log("Real time sending");
             connection.invoke("SendMessage", message, timestamp.toString());
+          } else {
+            console.log("Conn State: ", connection.state)
           }
           receiveMessage(message, timestamp.toString(), userInfo.userId, userInfo.username);
         });
@@ -264,7 +265,7 @@ export function Chat() {
       })
       .configureLogging(LogLevel.Information)
       .build();
-    connection.on("ReceiveMessage", receiveMessage);
+    connection.on("ReceiveMessage", (content: string, time: string, userId: string, username: string) => userId !== userInfo.userId ? receiveMessage(content, time, userId, username) : null);
     await connection
       .start()
       .then(() => {
@@ -347,14 +348,12 @@ export function Chat() {
       const memberDialogRef = React.createRef<HTMLDialogElement>()
       const buttonDialogRef = React.createRef<HTMLDivElement>()
       const toggleDialog = () => {
-        console.log("Two")
         if (memberDialogRef.current?.open) {
           memberDialogRef.current?.close()
         } else {
           memberDialogRef.current?.show()
         }
       }
-      console.log(requests)
       const memberIsUser = member.user_id === userInfo.userId;
       const memberIsFriend = friends.findIndex((friend) => friend.user_id === member.user_id) !== -1;
       const requestSentToMember = requests.findIndex((request) => request.user_id === member.user_id) !== -1;
