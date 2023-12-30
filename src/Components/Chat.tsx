@@ -215,7 +215,7 @@ export function Chat() {
   React.useEffect(() => {
     if (jwt !== "" && chatInfo) {
       getMessages(chatInfo.chatId).then(() => {
-        if (!connection || connection && connection.state !== HubConnectionState.Connected) {
+        if ((!connection) || (connection && connection.state !== HubConnectionState.Connected)) {
           joinChat();
         }
       });
