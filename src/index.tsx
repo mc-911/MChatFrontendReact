@@ -10,7 +10,9 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <BrowserRouter>
-    <App />
+    <div className='dark'>
+      <App />
+    </div>
   </BrowserRouter>
 );
 
