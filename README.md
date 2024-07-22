@@ -1,3 +1,7 @@
+# MChat React App
+
+This is the React App for my web chat application "MChat".
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
