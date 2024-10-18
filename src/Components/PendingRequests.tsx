@@ -151,7 +151,7 @@ export function PendingRequests() {
           friendRequestConnection?.invoke(
             "SendFriendRequest",
             response.data.friend_request_id,
-            response.data.friend_id
+            response.data.user_id
           );
         }
       })

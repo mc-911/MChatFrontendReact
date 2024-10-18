@@ -155,11 +155,19 @@ function Registration() {
         username: username,
       })
       .then((response) => {
-        response.status === 201 ? setRegistered(true) : setRegistered(false);
         console.log(response);
+        response.status === 201 ? setRegistered(true) : setRegistered(false);
       })
       .catch((error) => {
-        setErrorMessage("Email already exists");
+        console.log(error)
+        switch (error.request.status) {
+          case 400:
+            setErrorMessage("Email already exists");
+            break;
+          default:
+            setErrorMessage("Server Error");
+        }
+
       });
   };
 
