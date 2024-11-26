@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { HomeOutletContext } from "./home";
 import { Link, Outlet, useLocation, useOutletContext } from "react-router-dom";
-
+import { Socket } from "socket.io-client"
 
 export type Friend = {
   user_id: string;
@@ -21,9 +21,10 @@ export interface FriendsPageOutletContext {
   refreshFriendsFunc: () => Promise<void>;
   friends: Friend[];
   jwt: string
+  socket: Socket
 }
 function FriendsPage() {
-  const { friends, refreshFriendsFunc, setSidebarActive, jwt } = useOutletContext<HomeOutletContext>();
+  const { friends, refreshFriendsFunc, setSidebarActive, jwt, socket } = useOutletContext<HomeOutletContext>();
   const location = useLocation();
   return (
     <div className="flex flex-col h-full">
@@ -64,7 +65,7 @@ function FriendsPage() {
         </div>
       </div>
       <div className="grow rounded-md bg-secondary flex">
-        <Outlet context={{ friends, refreshFriendsFunc, jwt } satisfies FriendsPageOutletContext} />
+        <Outlet context={{ friends, refreshFriendsFunc, jwt, socket } satisfies FriendsPageOutletContext} />
       </div>
     </div>
   );

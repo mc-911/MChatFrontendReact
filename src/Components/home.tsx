@@ -6,6 +6,8 @@ import useUserInfo from "./useIsAuth";
 import { Friend } from "./FriendsPage";
 import { Settings } from "./Settings";
 import { SideBar } from "./SideBar";
+import { io } from "socket.io-client";
+import { Socket } from "socket.io-client"
 export interface HomeOutletContext {
   friends: Friend[];
   refreshFriendsFunc: () => Promise<void>;
@@ -15,6 +17,7 @@ export interface HomeOutletContext {
     name: string;
     id: string;
   }[]>>
+  socket: Socket
 }
 function Home() {
   const [friends, setFriends] = useState<Friend[]>([]);
@@ -22,6 +25,7 @@ function Home() {
   const [sidebarActive, setSidebarActive] = useState(true);
   const { jwt } = useOutletContext<PrivateOutletContext>();
   const { userInfo, setUserInfo } = useUserInfo();
+  const [socket, setSocket] = useState(io('http://localhost:3000', { auth: { jwt } }));
   //Forcibly re-renders to show new profile image when it is updated
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
@@ -77,7 +81,7 @@ function Home() {
         setChats={setChats}
       />
       <div className="grow w-screen h-screen ">
-        <Outlet context={{ friends, refreshFriendsFunc: getFriends, setSidebarActive, jwt, setChats } satisfies HomeOutletContext} />
+        <Outlet context={{ friends, refreshFriendsFunc: getFriends, setSidebarActive, jwt, setChats, socket } satisfies HomeOutletContext} />
         <Settings
           dialogRef={dialogRef}
           imgRefreshFunc={forceUpdate}

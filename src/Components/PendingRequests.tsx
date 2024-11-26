@@ -3,12 +3,7 @@ import useUserInfo from "./useIsAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { useEffect, useState } from "react";
-import {
-  HubConnection,
-  HubConnectionBuilder,
-  HubConnectionState,
-  LogLevel,
-} from "@microsoft/signalr";
+
 import { useOutletContext } from "react-router-dom";
 import { FriendsPageOutletContext, PendingRequest } from "./FriendsPage";
 import defaultProfilePic from "../assets/default_image.jpg";
@@ -17,9 +12,8 @@ export function PendingRequests() {
   const [friendEmail, setFriendEmail] = useState("");
   const [responseMessage, setResponseMessage] = useState("");
   const { userInfo } = useUserInfo();
-  const [friendRequestConnection, setFriendRequestConnection] =
-    useState<HubConnection>();
-  const { refreshFriendsFunc, jwt } = useOutletContext<FriendsPageOutletContext>();
+
+  const { refreshFriendsFunc, jwt, socket } = useOutletContext<FriendsPageOutletContext>();
 
   const getPendingRequests = () => {
     axios
@@ -38,44 +32,29 @@ export function PendingRequests() {
     connect();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const connect = async () => {
-    console.log("Connecting");
-    let connection = new HubConnectionBuilder()
-      .withUrl(`${process.env.REACT_APP_WEBSOCKETS_URL}/notification`, {
-        accessTokenFactory() {
-          return jwt;
-        },
-      })
-      .configureLogging(LogLevel.Information)
-      .build();
-    await connection
-      .start()
-      .then(() =>
-        connection.invoke("GoOnline", {
-          Username: userInfo.username,
-          ChatId: "0",
-          UserId: userInfo.userId,
-        })
-      )
-      .catch((error) => {
-        console.log(error);
+    socket.emit("join request", jwt)
+    if (!socket.hasListeners("receive friend request")) {
+      socket.on("receive friend request", receiveFriendRequest);
+    }
+    if (!socket.hasListeners("friend request accepted")) {
+      socket.on("friend request accepted", (friend_request_id: string) => {
+        refreshFriendsFunc();
+        setRequests(
+          requests.filter(
+            (request) => request.friend_request_id !== friend_request_id
+          )
+        );
       });
-    connection.on("ReceiveFriendRequest", receiveFriendRequest);
-    connection.on("BeNotifiedOfAcception", (friend_request_id: string) => {
-      refreshFriendsFunc();
-      setRequests(
-        requests.filter(
-          (request) => request.friend_request_id !== friend_request_id
-        )
-      );
-    });
-    connection.on("BeNotifiedOfDenial", (friend_request_id: string) => {
-      setRequests(
-        requests.filter(
-          (request) => request.friend_request_id !== friend_request_id
-        )
-      );
-    });
-    setFriendRequestConnection(connection);
+    }
+    if (!socket.hasListeners("friend request denied")) {
+      socket.on("friend request denied", (friend_request_id: string) => {
+        setRequests(
+          requests.filter(
+            (request) => request.friend_request_id !== friend_request_id
+          )
+        );
+      });
+    }
   };
   const receiveFriendRequest = (
     friend_request_id: string,
@@ -103,13 +82,11 @@ export function PendingRequests() {
         console.log("Request accepted refresh");
         getPendingRequests();
         refreshFriendsFunc();
-        if (friendRequestConnection?.state === HubConnectionState.Connected) {
-          friendRequestConnection?.invoke(
-            "NotifyRequestAccepted",
-            requester_id,
-            friend_request_id
-          );
-        }
+        socket.emit(
+          "notify friend request accepted",
+          requester_id,
+          friend_request_id
+        );
       })
       .catch((error) => {
         console.log(error);
@@ -123,13 +100,11 @@ export function PendingRequests() {
       )
       .then((response) => {
         console.log("Deny accepted refresh");
-        if (friendRequestConnection?.state === HubConnectionState.Connected) {
-          friendRequestConnection.invoke(
-            "NotifyRequestDenied",
-            requester_id,
-            friend_request_id
-          );
-        }
+        socket.emit(
+          "notify friend request denied",
+          requester_id,
+          friend_request_id
+        );
         getPendingRequests();
       })
       .catch((error) => {
@@ -147,13 +122,12 @@ export function PendingRequests() {
         setResponseMessage(`Sent request to ${response.data.username}`);
         getPendingRequests();
         setFriendEmail("");
-        if (friendRequestConnection?.state === HubConnectionState.Connected) {
-          friendRequestConnection?.invoke(
-            "SendFriendRequest",
-            response.data.friend_request_id,
-            response.data.user_id
-          );
-        }
+        socket.emit(
+          "send friend request",
+          response.data.friend_request_id,
+          response.data.user_id,
+          jwt
+        );
       })
       .catch((error) => {
         switch (error.response.status) {

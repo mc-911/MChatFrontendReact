@@ -1,12 +1,7 @@
 import React, { useState, useEffect, useRef, MutableRefObject } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import axios from "axios";
-import { HubConnectionState } from "@microsoft/signalr";
-import {
-  HubConnectionBuilder,
-  LogLevel,
-  HubConnection,
-} from "@microsoft/signalr";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core/import.macro";
 import useUserInfo from "./useIsAuth";
@@ -163,7 +158,7 @@ function MemberModal({ username, userId, dialogRef, friendRequestBtnDisabled, re
   </dialog>
 }
 export function Chat() {
-  const { setSidebarActive, jwt, friends, setChats } = useOutletContext<HomeOutletContext>();
+  const { setSidebarActive, jwt, friends, setChats, socket } = useOutletContext<HomeOutletContext>();
   const [messages, setMessages] = useState<Message[]>([]);
   const lastMessageRef = useRef() as MutableRefObject<HTMLDivElement>;
   const [chatInfo, setChatInfo] = useState<ChatInfo>({ chatId: "", name: "", imageUrl: "", role: "" });
@@ -186,17 +181,8 @@ export function Chat() {
         console.log(error);
       });
   };
-  const getStoredConnection = () => {
-    const oldConnectionString = sessionStorage.getItem(`chat-${chatInfo?.chatId}-connection`)
-    if (oldConnectionString) {
-      const oldConnection = JSON.parse(oldConnectionString) as HubConnection;
-      return oldConnection;
-    } else {
-      return null
-    }
-  }
+
   const { userInfo } = useUserInfo();
-  const [connection, setConnection] = useState<HubConnection | null>(getStoredConnection());
   const { id } = useParams();
 
   useEffect(() => {
@@ -213,12 +199,9 @@ export function Chat() {
 
 
   React.useEffect(() => {
-    if (jwt !== "" && chatInfo) {
-      getMessages(chatInfo.chatId).then(() => {
-        if ((!connection) || (connection && connection.state !== HubConnectionState.Connected)) {
-          joinChat();
-        }
-      });
+    if (jwt !== "" && chatInfo.chatId) {
+      getMessages(chatInfo.chatId)
+      joinChat()
     }
   }, [chatInfo]); // eslint-disable-line react-hooks/exhaustive-deps
   const getChatInfo = async () => {
@@ -237,7 +220,7 @@ export function Chat() {
   }
 
   const sendMessage = (message: string) => {
-    if (connection) {
+    if (socket) {
       const timestamp = Date.now();
       axios
         .post(`${process.env.REACT_APP_API_URL}/api/chat/${chatInfo?.chatId}/storeMessage`, {
@@ -245,45 +228,18 @@ export function Chat() {
           content: message,
         })
         .then(() => {
-          if (connection.state === HubConnectionState.Connected) {
-            console.log("Real time sending");
-            connection.invoke("SendMessage", message, timestamp.toString());
-          } else {
-            console.log("Conn State: ", connection.state)
-          }
+          console.log("Real time sending");
+          socket.emit("send message", chatInfo.chatId, message, timestamp.toString(), jwt);
           receiveMessage(message, timestamp.toString(), userInfo.userId, userInfo.username);
         });
     }
   };
   const joinChat = async () => {
     console.log(`Joining chat`);
-    let connection = new HubConnectionBuilder()
-      .withUrl(`${process.env.REACT_APP_WEBSOCKETS_URL}/chat`, {
-        accessTokenFactory() {
-          return jwt;
-        },
-      })
-      .configureLogging(LogLevel.Information)
-      .build();
-    connection.on("ReceiveMessage", (content: string, time: string, userId: string, username: string) => userId !== userInfo.userId ? receiveMessage(content, time, userId, username) : null);
-    await connection
-      .start()
-      .then(() => {
-        connection
-          .invoke("JoinChat", {
-            Username: userInfo.username,
-            ChatId: chatInfo?.chatId,
-            UserId: userInfo.userId,
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    sessionStorage.setItem(`chat-${chatInfo?.chatId}-connection`, JSON.stringify(connection))
-    setConnection(connection);
+    socket.emit("join chat", chatInfo.chatId, jwt)
+    if (!socket.hasListeners("receive message")) {
+      socket.on("receive message", (content: string, time: string, userId: string, username: string) => userId !== userInfo.userId ? receiveMessage(content, time, userId, username) : null);
+    }
   };
   const receiveMessage = (
     content: string,
@@ -441,7 +397,7 @@ export function Chat() {
           <MessageInputComponent
             placeholder={`Message ${chatInfo.name}`}
             sendMessageFunc={sendMessage}
-            connecting={(!connection) || (connection && connection.state !== HubConnectionState.Connected)}
+            connecting={false}
           />
         </div>
         <div className={`bg-background basis-full md:basis-1/4 ${showChatSidebar ? '' : 'hidden'} flex flex-col h-full`} >
