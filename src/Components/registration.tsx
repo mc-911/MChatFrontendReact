@@ -108,17 +108,17 @@ function VerificationMessage({ email }: VerificationMessageProps) {
     <>
       <div className="rounded-md bg-gray-800 p-3 flex flex-col max-w-md gap-4">
         <div>
-          <div className="text-lg font-semibold">Please verify your Email</div>
-          <div className="text-sm text-gray-300 italic ">One last step..</div>
+          <div className="text-lg font-semibold">Account Setup!</div>
+          <div className="text-sm text-gray-300 italic ">All Done..</div>
         </div>
         <div className="grow flex flex-col justify-between">
           <div>
-            We've sent an email sent to{" "}
+            No need to verify your email{" "}
             <span className="font-semibold">{email}</span>
           </div>
           <div className="flex flex-col gap-2">
             <div>
-              Just click on the link in the email to activate your account, and
+              Just log in with your details, and
               start chatting!
             </div>
             <div className="text-sm text-gray-300 italic ">
