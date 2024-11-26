@@ -1,5 +1,4 @@
-import React, { MutableRefObject } from "react";
-import { JsxElement } from "typescript";
+import { MutableRefObject } from "react";
 import defaultProfilePic from "../assets/default_image.jpg";
 
 interface MessageProps {
@@ -55,21 +54,7 @@ export function MessageComponent({
       );
     }
   };
-  function isValidHttpUrl(string: string) {
-    let url;
 
-    try {
-      url = new URL(string);
-    } catch (_) {
-      return false;
-    }
-
-    return url.protocol === "http:" || url.protocol === "https:";
-  }
-  const generateContent = () => {
-    var elements: JsxElement[] = [];
-    var words = content.split(" ");
-  }
 
   return (
     <div

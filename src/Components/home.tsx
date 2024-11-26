@@ -25,7 +25,7 @@ function Home() {
   const [sidebarActive, setSidebarActive] = useState(true);
   const { jwt } = useOutletContext<PrivateOutletContext>();
   const { userInfo, setUserInfo } = useUserInfo();
-  const [socket, setSocket] = useState(io('http://localhost:3000', { auth: { jwt } }));
+  const [socket] = useState(io('http://localhost:3000', { auth: { jwt } }));
   //Forcibly re-renders to show new profile image when it is updated
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
